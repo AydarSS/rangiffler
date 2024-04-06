@@ -1,0 +1,156 @@
+server:
+  port: 8080
+  error:
+    include:
+      message: true
+
+spring:
+  application:
+    name: rangiffler-gateway
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    net.devh.boot.grpc: DEBUG
+#    org.springframework.boot.autoconfigure: DEBUG
+
+  file:
+    name: 'gateway.log'
+
+rangiffler-userdata.client: soap
+
+---
+spring:
+  config:
+    activate:
+      on-profile: 'local'
+  autoconfigure:
+    exclude:
+      - 'org.springframework.cloud.vault.config.VaultAutoConfiguration'
+      - 'org.springframework.cloud.vault.config.VaultObservationAutoConfiguration'
+      - 'org.springframework.cloud.vault.config.VaultReactiveAutoConfiguration'
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: 'http://127.0.0.1:9000'
+  graphql:
+    graphiql:
+      enabled: true
+
+grpc:
+  client:
+    grpcCurrencyClient:
+      address: 'static://localhost:8092'
+      negotiationType: PLAINTEXT
+
+rangiffler-currency:
+  base-uri: 'http://127.0.0.1:8091'
+rangiffler-userdata:
+  base-uri: 'http://127.0.0.1:8089'
+rangiffler-spend:
+  base-uri: 'http://127.0.0.1:8093'
+rangiffler-front:
+  base-uri: 'http://127.0.0.1:3001'
+---
+spring:
+  config:
+    activate:
+      on-profile: 'docker'
+  autoconfigure:
+    exclude:
+      - 'org.springframework.cloud.vault.config.VaultAutoConfiguration'
+      - 'org.springframework.cloud.vault.config.VaultObservationAutoConfiguration'
+      - 'org.springframework.cloud.vault.config.VaultReactiveAutoConfiguration'
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: 'http://auth.rangiffler.dc:9000'
+
+grpc:
+  client:
+    grpcCurrencyClient:
+      address: 'static://currency.rangiffler.dc:8092'
+      negotiationType: PLAINTEXT
+
+rangiffler-currency:
+  base-uri: 'http://currency.rangiffler.dc:8091'
+rangiffler-userdata:
+  base-uri: 'http://userdata.rangiffler.dc:8089'
+rangiffler-spend:
+  base-uri: 'http://spend.rangiffler.dc:8093'
+rangiffler-front:
+  base-uri: 'http://frontend.rangiffler.dc'
+---
+spring:
+  config:
+    activate:
+      on-profile: 'prod'
+    import: vault://
+  cloud:
+    vault:
+      authentication: TOKEN
+      host: vault.qa.guru
+      port: 443
+      scheme: https
+      uri: https://vault.qa.guru:443
+      token: ${VAULT_TOKEN}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: 'https://auth.rangiffler.qa.guru'
+
+grpc:
+  client:
+    grpcCurrencyClient:
+      address: ${rangiffler-currency.grpc.url}
+      negotiationType: PLAINTEXT
+
+rangiffler-currency:
+  base-uri: ${rangiffler-currency.url}
+rangiffler-userdata:
+  base-uri: ${rangiffler-userdata.url}
+rangiffler-spend:
+  base-uri: ${rangiffler-spend.url}
+rangiffler-front:
+  base-uri: 'https://rangiffler.qa.guru'
+---
+spring:
+  config:
+    activate:
+      on-profile: 'staging'
+    import: vault://
+  cloud:
+    vault:
+      authentication: TOKEN
+      host: vault.qa.guru
+      port: 443
+      scheme: https
+      uri: https://vault.qa.guru:443
+      token: ${VAULT_TOKEN}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: 'https://auth.rangiffler-stage.qa.guru'
+
+grpc:
+  client:
+    grpcCurrencyClient:
+      address: ${rangiffler-currency.grpc.url}
+      negotiationType: PLAINTEXT
+
+rangiffler-currency:
+  base-uri: ${rangiffler-currency.url}
+rangiffler-userdata:
+  base-uri: ${rangiffler-userdata.url}
+rangiffler-spend:
+  base-uri: ${rangiffler-spend.url}
+rangiffler-front:
+  base-uri: 'https://rangiffler-stage.qa.guru'
+---

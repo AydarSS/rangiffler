@@ -104,7 +104,7 @@ public class RangifflerAuthServiceConfig {
     portMapper.setPortMappings(Map.of(
         serverPort, defaultHttpsPort,
         "80", defaultHttpsPort,
-        "8080", "8443"
+        "8090", "8443"
     ));
     PortResolverImpl portResolver = new PortResolverImpl();
     portResolver.setPortMapper(portMapper);

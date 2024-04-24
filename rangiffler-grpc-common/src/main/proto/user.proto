@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package guru.qa.grpc.rangiffler;
+
+service UserService {
+  rpc GetAllUsers (LinkedUsersByUsernameRequest) returns (UsersPageableResponse) {}
+  rpc GetUserByUsername (UserByUsernameRequest) returns (UserByUsernameResponse) {}
+  rpc GetFriends(LinkedUsersByUsernameRequest) returns (UsersPageableResponse) {}
+  rpc GetIncomeInvitations(LinkedUsersByUsernameRequest) returns (UsersPageableResponse) {}
+  rpc GetOutcomeInvitations(LinkedUsersByUsernameRequest) returns (UsersPageableResponse) {}
+}
+
+
+message UserByUsernameRequest {
+  string username = 1;
+}
+
+message UserByUsernameResponse {
+  User user = 1;
+}
+
+message User {
+  string id = 1;
+  string username = 2;
+  string firstname = 3;
+  string surname = 4;
+  bytes avatar = 5;
+  Enum friendStatus = 6;
+  UsersPageableResponse friends = 7;
+  UsersPageableResponse incomeInvitations = 8;
+  UsersPageableResponse outcomeInvitations = 9;
+  Country country = 10;
+}
+
+enum Enum {
+  UNSPECIFIED = 0;
+  NOT_FRIEND = 1;
+  INVITATION_SENT = 2;
+  INVITATION_RECEIVED = 3;
+  FRIEND = 4;
+}
+
+message PageableRequest {
+  string searchQuery = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message UsersPageableResponse {
+  repeated User users = 1;
+  bool hasNext = 2;
+}
+
+message Country {
+  string flag = 1;
+  string code = 2;
+  string name = 3;
+}
+
+message LinkedUsersByUsernameRequest {
+  string username = 1;
+  PageableRequest pageInfo = 2;
+}

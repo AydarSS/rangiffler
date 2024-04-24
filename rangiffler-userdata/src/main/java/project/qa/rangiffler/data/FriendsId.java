@@ -6,23 +6,23 @@ import java.util.UUID;
 
 public class FriendsId implements Serializable {
 
-  private UUID requesterUser;
-  private UUID addresseeUser;
+  private UUID requester;
+  private UUID addressee;
 
-  public UUID getRequesterUser() {
-    return requesterUser;
+  public UUID getRequester() {
+    return requester;
   }
 
-  public void setRequesterUser(UUID requesterUser) {
-    this.requesterUser = requesterUser;
+  public void setRequester(UUID requesterUser) {
+    this.requester = requesterUser;
   }
 
-  public UUID getAddresseeUser() {
-    return addresseeUser;
+  public UUID getAddressee() {
+    return addressee;
   }
 
-  public void setAddresseeUser(UUID addresseeUser) {
-    this.addresseeUser = addresseeUser;
+  public void setAddressee(UUID addresseeUser) {
+    this.addressee = addresseeUser;
   }
 
   @Override
@@ -34,12 +34,12 @@ public class FriendsId implements Serializable {
       return false;
     }
     FriendsId friendsId = (FriendsId) o;
-    return Objects.equals(requesterUser, friendsId.requesterUser) && Objects.equals(addresseeUser,
-        friendsId.addresseeUser);
+    return Objects.equals(requester, friendsId.requester) && Objects.equals(addressee,
+        friendsId.addressee);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requesterUser, addresseeUser);
+    return Objects.hash(requester, addressee);
   }
 }

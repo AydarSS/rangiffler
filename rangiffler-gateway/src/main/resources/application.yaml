@@ -43,8 +43,8 @@ spring:
 
 grpc:
   client:
-    grpcCurrencyClient:
-      address: 'static://localhost:8092'
+    grpcUserClient:
+      address: 'static://localhost:8090'
       negotiationType: PLAINTEXT
 
 rangiffler-currency:
@@ -73,7 +73,7 @@ spring:
 
 grpc:
   client:
-    grpcCurrencyClient:
+    grpcUserClient:
       address: 'static://currency.rangiffler.dc:8092'
       negotiationType: PLAINTEXT
 
@@ -107,7 +107,7 @@ spring:
 
 grpc:
   client:
-    grpcCurrencyClient:
+    grpcUserClient:
       address: ${rangiffler-currency.grpc.url}
       negotiationType: PLAINTEXT
 
@@ -141,7 +141,7 @@ spring:
 
 grpc:
   client:
-    grpcCurrencyClient:
+    grpcUserClient:
       address: ${rangiffler-currency.grpc.url}
       negotiationType: PLAINTEXT
 

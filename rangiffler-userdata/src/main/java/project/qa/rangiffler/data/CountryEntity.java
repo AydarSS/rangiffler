@@ -28,7 +28,7 @@ public class CountryEntity {
   String name;
 
   @Column(name = "flag", nullable = false)
-  byte[] flag;
+  String flag;
 
 
 }

@@ -4,6 +4,10 @@ server:
     include:
       message: true
 
+grpc:
+  server:
+    port: 8090
+
 spring:
   application:
     name: rangiffler-userdata
@@ -19,7 +23,6 @@ spring:
     enabled: true
     baseline-on-migrate: true
     baseline-version: 0
-    schemas: public
     locations: classpath:db/migration/rangiffler-userdata
   jpa:
     hibernate:
@@ -31,7 +34,7 @@ spring:
             non_contextual_creation: true
     database-platform: org.hibernate.dialect.MySQLDialect
     show-sql: false
-    generate-ddl: true
+    generate-ddl: false
     open-in-view: false
 
 logging:
@@ -61,7 +64,7 @@ spring:
       auto-offset-reset: earliest
   datasource:
     url: 'jdbc:mysql://localhost:3306/rangiffler_userdata'
-    username: postgres
+    username: root
     password: secret
 rangiffler-userdata:
   base-uri: 'http://127.0.0.1:8089'
@@ -82,7 +85,7 @@ spring:
       auto-offset-reset: earliest
   datasource:
     url: 'jdbc:mysql://rangiffler-all-db:3306/rangiffler_userdata'
-    username: postgres
+    username: root
     password: secret
 rangiffler-userdata:
   base-uri: 'http://userdata.rangiffler.dc:8089'

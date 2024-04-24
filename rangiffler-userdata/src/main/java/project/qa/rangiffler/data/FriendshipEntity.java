@@ -23,18 +23,18 @@ public class FriendshipEntity {
   @Id
   @ManyToOne
   @JoinColumn(name = "requester_id", referencedColumnName = "id")
-  UserEntity requesterUser;
+  UserEntity requester;
 
   @Id
   @ManyToOne
   @JoinColumn(name = "addressee_id", referencedColumnName = "id")
-  UserEntity addresseeUser;
+  UserEntity addressee;
 
   @Column(name = "created_date", nullable = false)
   LocalDateTime createdDate;
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  FriendshipStatus friendshipStatus;
+  FriendshipStatus status;
 
 }

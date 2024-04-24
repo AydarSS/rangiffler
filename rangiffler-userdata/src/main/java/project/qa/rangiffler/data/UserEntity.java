@@ -28,10 +28,10 @@ public class UserEntity {
   String username;
 
   @Column(name = "firstname")
-  String firstName;
+  String firstname;
 
   @Column(name = "lastname")
-  String lastName;
+  String surname;
 
   @Column(name = "avatar")
   byte[] avatar;

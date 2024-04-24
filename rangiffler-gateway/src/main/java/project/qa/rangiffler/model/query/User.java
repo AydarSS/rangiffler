@@ -3,6 +3,7 @@ package project.qa.rangiffler.model.query;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Slice;
 
 public record User(
     @JsonProperty("id")

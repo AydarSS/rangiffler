@@ -1,6 +1,6 @@
 create table if not exists rangiffler_userdata.country
 (
-    id                      binary(16) unique not null default (UUID_TO_BIN(UUID(), true)),
+    id                      BINARY(16)  DEFAULT (UUID_TO_BIN(UUID())),
     code                    varchar(50)        not null,
     name                    varchar(255)       not null,
     flag                    longblob           not null,
@@ -9,12 +9,12 @@ create table if not exists rangiffler_userdata.country
 
 create table if not exists rangiffler_userdata.user
 (
-    id                      binary(16) unique  not null default (UUID_TO_BIN(UUID(), true)),
+    id                      BINARY(16)  DEFAULT (UUID_TO_BIN(UUID())),
     username                varchar(50) unique not null,
     firstname               varchar(255),
     lastname                varchar(255),
     avatar                  longblob,
-    country_id              binary(16)         not null,
+    country_id              binary(16),
     primary key (id),
     constraint us_country_id foreign key (country_id) references country (id)
 );

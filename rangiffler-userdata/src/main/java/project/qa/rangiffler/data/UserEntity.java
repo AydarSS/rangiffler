@@ -34,7 +34,7 @@ public class UserEntity {
   String surname;
 
   @Column(name = "avatar")
-  byte[] avatar;
+  String avatar;
 
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "country_id", referencedColumnName = "id")

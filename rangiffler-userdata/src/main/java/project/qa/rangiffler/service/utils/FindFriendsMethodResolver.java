@@ -5,7 +5,7 @@ import project.qa.rangiffler.data.repository.UserRepository;
 public class FindFriendsMethodResolver extends FindMethodResolver{
 
   private final UserRepository userRepository;
-  private final
+
 
   public FindFriendsMethodResolver(boolean firstParameter, boolean secondParameter,
       UserRepository userRepository) {

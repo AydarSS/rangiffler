@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 package guru.qa.grpc.rangiffler;
 
 service UserService {
@@ -8,6 +10,9 @@ service UserService {
   rpc GetFriends(LinkedUsersByUsernameRequest) returns (UsersPageableResponse) {}
   rpc GetIncomeInvitations(LinkedUsersByUsernameRequest) returns (UsersPageableResponse) {}
   rpc GetOutcomeInvitations(LinkedUsersByUsernameRequest) returns (UsersPageableResponse) {}
+  rpc UpdateUser(UserAbout) returns (User) {}
+  rpc IdentityFriendship(FriendshipAbout) returns (User) {}
+  rpc GetAllCountries(google.protobuf.Empty) returns (CountryResponse) {}
 }
 
 
@@ -24,15 +29,15 @@ message User {
   string username = 2;
   string firstname = 3;
   string surname = 4;
-  bytes avatar = 5;
-  Enum friendStatus = 6;
+  string avatar = 5;
+  FriendsStatus friendStatus = 6;
   UsersPageableResponse friends = 7;
   UsersPageableResponse incomeInvitations = 8;
   UsersPageableResponse outcomeInvitations = 9;
   Country country = 10;
 }
 
-enum Enum {
+enum FriendsStatus {
   UNSPECIFIED = 0;
   NOT_FRIEND = 1;
   INVITATION_SENT = 2;
@@ -60,4 +65,29 @@ message Country {
 message LinkedUsersByUsernameRequest {
   string username = 1;
   PageableRequest pageInfo = 2;
+}
+
+message UserAbout {
+  string username = 1;
+  string firstname = 2;
+  string surname = 3;
+  string avatar = 4;
+  Country country = 5;
+}
+
+message FriendshipAbout {
+  string requesterUsername = 1;
+  string addresseeId = 2;
+  FriendshipAction friendshipAction = 3;
+}
+
+enum FriendshipAction {
+  ADD = 0;
+  ACCEPT = 1;
+  REJECT = 2;
+  DELETE = 3;
+}
+
+message CountryResponse {
+  repeated Country country = 1;
 }

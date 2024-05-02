@@ -1,29 +1,32 @@
 package project.qa.rangiffler.service;
 
-import com.google.protobuf.Empty;
 import com.google.protobuf.Timestamp;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.AddPhotoRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.ChangeLikeRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.ChangePhotoRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.DeletePhotoRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.DeletePhotoResponse;
-import guru.qa.grpc.rangiffler.PhotoOuterClass.GetCountryCodeRequest;
-import guru.qa.grpc.rangiffler.PhotoOuterClass.GetCountryCodeResponse;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetLikesRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetLikesResponse;
+import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotoCountryCodeRequest;
+import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotoCountryCodeResponse;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotosRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotosResponse;
-import guru.qa.grpc.rangiffler.PhotoOuterClass.GetStatRespose;
+import guru.qa.grpc.rangiffler.PhotoOuterClass.GetStatRequest;
+import guru.qa.grpc.rangiffler.PhotoOuterClass.GetStatResponse;
+import guru.qa.grpc.rangiffler.PhotoOuterClass.Photo;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.PhotoResponse;
 import guru.qa.grpc.rangiffler.PhotoServiceGrpc;
 import io.grpc.stub.StreamObserver;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import project.qa.rangiffler.data.PhotoEntity;
 import project.qa.rangiffler.data.repository.LikeRepository;
@@ -69,7 +72,8 @@ public class GrpcPhotoService extends PhotoServiceGrpc.PhotoServiceImplBase {
   @Override
   public void changePhoto(ChangePhotoRequest request,
       StreamObserver<PhotoResponse> responseObserver) {
-    Optional<PhotoEntity> photoEntityOptional = photoRepository.findById(UUID.fromString(request.getId()));
+    Optional<PhotoEntity> photoEntityOptional = photoRepository.findById(
+        UUID.fromString(request.getId()));
     if (!photoEntityOptional.isPresent()) {
       //TODO
     }
@@ -99,7 +103,8 @@ public class GrpcPhotoService extends PhotoServiceGrpc.PhotoServiceImplBase {
   @Override
   public void deletePhoto(DeletePhotoRequest request,
       StreamObserver<DeletePhotoResponse> responseObserver) {
-    Optional<PhotoEntity> photoEntityOptional = photoRepository.findById(UUID.fromString(request.getId()));
+    Optional<PhotoEntity> photoEntityOptional = photoRepository.findById(
+        UUID.fromString(request.getId()));
     if (!photoEntityOptional.isPresent()) {
       //TODO
     }
@@ -116,10 +121,16 @@ public class GrpcPhotoService extends PhotoServiceGrpc.PhotoServiceImplBase {
   @Override
   public void getPhotos(GetPhotosRequest request,
       StreamObserver<GetPhotosResponse> responseObserver) {
-    if(request.getWithFriends()) {
+    Slice<PhotoEntity> photos = photoRepository.findByUsernameIn(
+        request.getUsernameList(),
+        PageRequest.of(request.getPageInfo().getPage(), request.getPageInfo().getSize()));
+    GetPhotosResponse response = GetPhotosResponse.newBuilder()
+        .addAllPhotos(toGrpcList(photos.getContent()))
+        .setHasNext(photos.hasNext())
+        .build();
 
-    }
-  //  Slice<PhotoEntity> photoEntities = photoRepository.findPhotos()
+    responseObserver.onNext(response);
+    responseObserver.onCompleted();
   }
 
   @Override
@@ -134,17 +145,17 @@ public class GrpcPhotoService extends PhotoServiceGrpc.PhotoServiceImplBase {
   }
 
   @Override
-  public void getStat(Empty request, StreamObserver<GetStatRespose> responseObserver) {
-    super.getStat(request, responseObserver);
+  public void getPhotoCountryCode(GetPhotoCountryCodeRequest request,
+      StreamObserver<GetPhotoCountryCodeResponse> responseObserver) {
+    super.getPhotoCountryCode(request, responseObserver);
   }
 
   @Override
-  public void getCountryCode(GetCountryCodeRequest request,
-      StreamObserver<GetCountryCodeResponse> responseObserver) {
-    super.getCountryCode(request, responseObserver);
+  public void getStat(GetStatRequest request, StreamObserver<GetStatResponse> responseObserver) {
+    super.getStat(request, responseObserver);
   }
 
-  protected Timestamp convertLocalDateTimeToTimestamp(LocalDateTime localDateTime) {
+  private Timestamp convertLocalDateTimeToTimestamp(LocalDateTime localDateTime) {
     Instant instant = localDateTime.toInstant(ZoneOffset.UTC);
 
     Timestamp result = Timestamp.newBuilder()
@@ -154,4 +165,22 @@ public class GrpcPhotoService extends PhotoServiceGrpc.PhotoServiceImplBase {
 
     return result;
   }
+
+  private List<Photo> toGrpcList(List<PhotoEntity> photos) {
+    return photos.stream()
+        .map(this::toGrpc)
+        .toList();
+  }
+
+  private Photo toGrpc(PhotoEntity photo) {
+    return Photo.newBuilder()
+        .setId(photo.getId().toString())
+        .setSrc(photo.getPhoto())
+        .setUsername(photo.getUsername())
+        .setCountryCode(photo.getCountryCode())
+        .setDescription(photo.getDescription())
+        .setCreatedDate(convertLocalDateTimeToTimestamp(photo.getCreatedDate()))
+        .build();
+  }
+
 }

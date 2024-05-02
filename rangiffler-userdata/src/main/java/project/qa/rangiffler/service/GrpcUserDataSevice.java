@@ -1,11 +1,7 @@
 package project.qa.rangiffler.service;
 
-import static project.qa.rangiffler.data.utils.EntityToGrpcConverter.fromCountryEntity;
 import static project.qa.rangiffler.data.utils.EntityToGrpcConverter.setEmptyValueIfNull;
 
-import com.google.protobuf.Empty;
-import guru.qa.grpc.rangiffler.UserOuterClass.Country;
-import guru.qa.grpc.rangiffler.UserOuterClass.CountryResponse;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendsStatus;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendshipAbout;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendshipAction;
@@ -19,8 +15,6 @@ import guru.qa.grpc.rangiffler.UserServiceGrpc;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -28,11 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import project.qa.rangiffler.data.CountryEntity;
 import project.qa.rangiffler.data.FriendshipEntity;
 import project.qa.rangiffler.data.FriendshipStatus;
 import project.qa.rangiffler.data.UserEntity;
-import project.qa.rangiffler.data.repository.CountryRepository;
 import project.qa.rangiffler.data.repository.FriendshipRepository;
 import project.qa.rangiffler.data.repository.UserRepository;
 import project.qa.rangiffler.data.utils.EntityToGrpcConverter;
@@ -42,16 +34,13 @@ public class GrpcUserDataSevice extends UserServiceGrpc.UserServiceImplBase {
 
   private final UserRepository userRepository;
   private final FriendshipRepository friendshipRepository;
-  private final CountryRepository countryRepository;
   private final String STRING_EMPTY = "";
 
   @Autowired
   public GrpcUserDataSevice(UserRepository userRepository,
-      FriendshipRepository friendshipRepository,
-      CountryRepository countryRepository) {
+      FriendshipRepository friendshipRepository) {
     this.userRepository = userRepository;
     this.friendshipRepository = friendshipRepository;
-    this.countryRepository = countryRepository;
   }
 
   @Override
@@ -166,7 +155,7 @@ public class GrpcUserDataSevice extends UserServiceGrpc.UserServiceImplBase {
           FriendsStatus.INVITATION_SENT);
     } else if (isPageableIsNotExistsIn(request)) {
       response = getPagebleUsers(
-          () -> userRepository.findOutcomeInvitations(user,searchQueryFrom(request)),
+          () -> userRepository.findOutcomeInvitations(user, searchQueryFrom(request)),
           FriendsStatus.INVITATION_SENT);
     } else {
       response = getPagebleUsers(
@@ -183,10 +172,8 @@ public class GrpcUserDataSevice extends UserServiceGrpc.UserServiceImplBase {
   @Override
   public void updateUser(UserAbout request, StreamObserver<User> responseObserver) {
     UserEntity userEntity = userRepository.findByUsername(request.getUsername()).get();
-    Optional<CountryEntity> mayBeCountry = countryRepository.findByCode(request.getCountry().getCode());
-    if(mayBeCountry.isPresent()) {
-      userEntity.setCountry(mayBeCountry.get());
-    }
+
+    userEntity.setCountryId(UUID.fromString(request.getCountryId()));
     userEntity.setFirstname(request.getFirstname());
     userEntity.setSurname(request.getSurname());
     userEntity.setAvatar(request.getAvatar());
@@ -203,7 +190,7 @@ public class GrpcUserDataSevice extends UserServiceGrpc.UserServiceImplBase {
   public void identityFriendship(FriendshipAbout request, StreamObserver<User> responseObserver) {
     UserEntity requester = null;
     UserEntity addressee;
-    
+
     if (request.getFriendshipAction().equals(FriendshipAction.ADD)) {
       requester = userRepository.findByUsername(request.getRequesterUsername()).get();
       addressee = userRepository.findById(UUID.fromString(request.getAddresseeId())).get();
@@ -239,7 +226,8 @@ public class GrpcUserDataSevice extends UserServiceGrpc.UserServiceImplBase {
     } else if (request.getFriendshipAction().equals(FriendshipAction.DELETE)) {
       requester = userRepository.findByUsername(request.getRequesterUsername()).get();
       addressee = userRepository.findById(UUID.fromString(request.getAddresseeId())).get();
-      Optional<FriendshipEntity> friendship = friendshipRepository.findFriendship(requester,addressee);
+      Optional<FriendshipEntity> friendship = friendshipRepository.findFriendship(requester,
+          addressee);
       if (friendship.isPresent()) {
         friendshipRepository.delete(friendship.get());
       }
@@ -251,25 +239,6 @@ public class GrpcUserDataSevice extends UserServiceGrpc.UserServiceImplBase {
     responseObserver.onCompleted();
   }
 
-  @Override
-  public void getAllCountries(Empty request, StreamObserver<CountryResponse> responseObserver) {
-
-    List<CountryEntity> countryEntities = countryRepository.findAll();
-
-    List<Country> countryList = countryEntities
-        .stream()
-        .map(EntityToGrpcConverter::fromCountryEntity)
-        .toList();
-
-    CountryResponse response = CountryResponse.newBuilder()
-        .addAllCountry(countryList)
-        .build();
-
-    responseObserver.onNext(response);
-    responseObserver.onCompleted();
-  }
-
-
   private UsersPageableResponse getPagebleUsers(UsersResponse<Slice<UserEntity>> request,
       FriendsStatus friendsStatus) {
     Slice<UserEntity> users = request.get();
@@ -278,23 +247,21 @@ public class GrpcUserDataSevice extends UserServiceGrpc.UserServiceImplBase {
     }
 
     return UsersPageableResponse.newBuilder()
-          .addAllUsers(users
-              .getContent()
-              .stream()
-              .map(userEntity -> User.newBuilder()
-                  .setId(userEntity.getId().toString())
-                  .setUsername(userEntity.getUsername())
-                  .setFirstname(setEmptyValueIfNull(userEntity.getFirstname()))
-                  .setSurname(setEmptyValueIfNull(userEntity.getSurname()))
-                  .setAvatar(setEmptyValueIfNull(userEntity.getAvatar()))
-                  .setFriendStatus(friendsStatus)
-                  .setCountry(Objects.nonNull(userEntity.getCountry()) ?
-                      fromCountryEntity(userEntity.getCountry()) :
-                      Country.getDefaultInstance())
-                  .build())
-              .toList())
-          .setHasNext(users.hasNext())
-          .build();
+        .addAllUsers(users
+            .getContent()
+            .stream()
+            .map(userEntity -> User.newBuilder()
+                .setId(userEntity.getId().toString())
+                .setUsername(userEntity.getUsername())
+                .setFirstname(setEmptyValueIfNull(userEntity.getFirstname()))
+                .setSurname(setEmptyValueIfNull(userEntity.getSurname()))
+                .setAvatar(setEmptyValueIfNull(userEntity.getAvatar()))
+                .setFriendStatus(friendsStatus)
+                .setCountryId(userEntity.getCountryId().toString())
+                .build())
+            .toList())
+        .setHasNext(users.hasNext())
+        .build();
   }
 
   private boolean isSearchQueryIsEmptyIn(LinkedUsersByUsernameRequest request) {

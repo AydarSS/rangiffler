@@ -36,8 +36,7 @@ public class UserEntity {
   @Column(name = "avatar")
   String avatar;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "country_id", referencedColumnName = "id")
-  CountryEntity country;
+  @Column(name = "country_id")
+  UUID countryId;
 
 }

@@ -28,6 +28,19 @@ public record User(
     Country country
 ) {
 
+    public User withCountry(Country country) {
+        return new User(this.id,
+            this.username,
+            this.firstname,
+            this.surname,
+            this.avatar,
+            this.friendStatus,
+            this.friends,
+            this.incomeInvitations,
+            this.outcomeInvitations,
+            country);
+    }
+
     public static User fromUserInput(UserInput userInput, String username) {
         return new User(null,
             username,

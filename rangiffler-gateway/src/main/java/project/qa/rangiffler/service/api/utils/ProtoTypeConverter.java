@@ -29,7 +29,7 @@ public class ProtoTypeConverter {
         new ArrayList<>(),
         new ArrayList<>(),
         new ArrayList<>(),
-        fromProtoCountry(protoUser.getCountry())
+        Country.withOnlyId(protoUser.getCountryId())
     );
   }
 
@@ -40,16 +40,4 @@ public class ProtoTypeConverter {
         .toList();
   }
 
-  public List<Country> fromProtoToListCountries(List<UserOuterClass.Country> protoCountryList) {
-    return protoCountryList
-        .stream()
-        .map(this::fromProtoCountry)
-        .toList();
-  }
-
-  private Country fromProtoCountry(UserOuterClass.Country protoCountry) {
-    return new Country(protoCountry.getFlag(),
-        protoCountry.getCode(),
-        protoCountry.getName());
-  }
 }

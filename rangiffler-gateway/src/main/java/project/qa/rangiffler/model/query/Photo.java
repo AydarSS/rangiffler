@@ -1,6 +1,7 @@
 package project.qa.rangiffler.model.query;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
 
@@ -14,7 +15,7 @@ public record Photo(
     @JsonProperty("description")
     String description,
     @JsonProperty("creationDate")
-    Date creationDate,
+    LocalDate creationDate,
     @JsonProperty("likes")
     Likes likes
 

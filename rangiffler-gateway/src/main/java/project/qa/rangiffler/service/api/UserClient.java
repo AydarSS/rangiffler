@@ -22,5 +22,4 @@ public interface UserClient {
 
   User friendshipAction(Friendship friendship);
 
-  List<Country> countries();
 }

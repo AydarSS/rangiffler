@@ -1,9 +1,6 @@
 package project.qa.rangiffler.service.api;
 
-import com.google.protobuf.Empty;
 import guru.qa.grpc.rangiffler.UserOuterClass;
-import guru.qa.grpc.rangiffler.UserOuterClass.Country;
-import guru.qa.grpc.rangiffler.UserOuterClass.CountryResponse;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendshipAbout;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendshipAction;
 import guru.qa.grpc.rangiffler.UserOuterClass.LinkedUsersByUsernameRequest;
@@ -14,8 +11,6 @@ import guru.qa.grpc.rangiffler.UserOuterClass.UserByUsernameResponse;
 import guru.qa.grpc.rangiffler.UserOuterClass.UsersPageableResponse;
 import guru.qa.grpc.rangiffler.UserServiceGrpc;
 import guru.qa.grpc.rangiffler.UserServiceGrpc.UserServiceBlockingStub;
-import java.util.List;
-import java.util.UUID;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,9 +85,7 @@ public class GrpcUserClient implements UserClient {
             .setFirstname(user.firstname())
             .setSurname(user.surname())
             .setAvatar(user.avatar())
-            .setCountry(Country.newBuilder()
-                .setCode(user.country().code())
-                .build())
+            .setCountryId(user.country().id().toString())
             .build()
     );
     return typeConverter.fromProtoToUser(userGrpc);
@@ -108,13 +101,6 @@ public class GrpcUserClient implements UserClient {
             .build()
     );
     return typeConverter.fromProtoToUser(userGrpc);
-  }
-
-  @Override
-  public List<project.qa.rangiffler.model.query.Country> countries() {
-    CountryResponse countryResponse = userServiceBlockingStub
-        .getAllCountries(Empty.newBuilder().getDefaultInstanceForType());
-    return typeConverter.fromProtoToListCountries(countryResponse.getCountryList());
   }
 
   private PageableObjects<User> getPagebleUsers(UsersRequest<UsersPageableResponse> request) {

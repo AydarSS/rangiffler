@@ -3,8 +3,6 @@ package project.qa.rangiffler.controller;
 import graphql.schema.DataFetchingEnvironment;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -24,16 +22,16 @@ import project.qa.rangiffler.model.query.Country;
 import project.qa.rangiffler.model.query.Friendship;
 import project.qa.rangiffler.model.query.PageableObjects;
 import project.qa.rangiffler.model.query.User;
-import project.qa.rangiffler.service.api.UserClient;
+import project.qa.rangiffler.service.UserAggregatorService;
 
 @Controller
 public class UserGraphqlController {
 
-  private final UserClient userClient;
+  private final UserAggregatorService userAggregatorService;
 
   @Autowired
-  public UserGraphqlController(UserClient userClient) {
-    this.userClient = userClient;
+  public UserGraphqlController(UserAggregatorService userAggregatorService) {
+    this.userAggregatorService = userAggregatorService;
   }
 
   @SchemaMapping(typeName = "User", field = "friends")
@@ -41,7 +39,8 @@ public class UserGraphqlController {
       @Argument int page,
       @Argument int size,
       @Argument @Nullable String searchQuery) {
-    PageableObjects pageableUsers = userClient.friends(user.username(), page, size, searchQuery);
+    PageableObjects pageableUsers = userAggregatorService.friends(user.username(), page, size,
+        searchQuery);
     return createSlice(page, size, pageableUsers);
   }
 
@@ -50,15 +49,15 @@ public class UserGraphqlController {
       @Argument int page,
       @Argument int size,
       @Argument @Nullable String searchQuery) {
-    PageableObjects pageableUsers = userClient.incomeInvitations(user.username(), page, size,
+    PageableObjects pageableUsers = userAggregatorService.incomeInvitations(user.username(), page,
+        size,
         searchQuery);
     return createSlice(page, size, pageableUsers);
   }
 
   @SchemaMapping(typeName = "User", field = "location")
-  public Country location (User user) {
-    Country country = user.country();
-    return country;
+  public Country location(User user) {
+    return user.country();
   }
 
   @SchemaMapping(typeName = "User", field = "outcomeInvitations")
@@ -66,7 +65,8 @@ public class UserGraphqlController {
       @Argument int page,
       @Argument int size,
       @Argument @Nullable String searchQuery) {
-    PageableObjects pageableUsers = userClient.outcomeInvitations(user.username(), page, size,
+    PageableObjects pageableUsers = userAggregatorService.outcomeInvitations(user.username(), page,
+        size,
         searchQuery);
     return createSlice(page, size, pageableUsers);
   }
@@ -77,33 +77,29 @@ public class UserGraphqlController {
       @Argument int size,
       @Argument @Nullable String searchQuery) {
     String username = principal.getClaim("sub");
-    PageableObjects pageableUsers = userClient.allUsers(username, page, size, searchQuery);
+    PageableObjects pageableUsers = userAggregatorService.allUsers(username, page, size,
+        searchQuery);
     return createSlice(page, size, pageableUsers);
   }
 
   @QueryMapping
   public User user(@AuthenticationPrincipal Jwt principal, @Nonnull DataFetchingEnvironment env) {
     String username = principal.getClaim("sub");
-    return userClient.byUsername(username);
-  }
-
-  @QueryMapping
-  public List<Country> countries (@AuthenticationPrincipal Jwt principal) {
-    return userClient.countries();
+    return userAggregatorService.byUsername(username);
   }
 
   @MutationMapping
   @ResponseStatus(HttpStatus.CREATED)
   public User friendship(@AuthenticationPrincipal Jwt principal, @Argument FriendshipInput input) {
     String username = principal.getClaim("sub");
-    return userClient.friendshipAction(Friendship.fromFriendshipInput(input, username));
+    return userAggregatorService.friendshipAction(Friendship.fromFriendshipInput(input, username));
   }
 
   @MutationMapping
   @ResponseStatus(HttpStatus.CREATED)
   public User user(@AuthenticationPrincipal Jwt principal, @Argument UserInput input) {
     String username = principal.getClaim("sub");
-    return userClient.updateUser(User.fromUserInput(input, username));
+    return userAggregatorService.updateUser(User.fromUserInput(input, username));
   }
 
   private Slice<User> createSlice(int page, int size, PageableObjects pageableObjects) {

@@ -20,7 +20,6 @@ logging:
   file:
     name: 'gateway.log'
 
-rangiffler-userdata.client: soap
 
 ---
 spring:
@@ -46,13 +45,19 @@ grpc:
     grpcUserClient:
       address: 'static://localhost:8090'
       negotiationType: PLAINTEXT
+    grpcPhotoClient:
+      address: 'static://localhost:8096'
+      negotiationType: PLAINTEXT
+    grpcGeoClient:
+      address: 'static://localhost:8086'
+      negotiationType: PLAINTEXT
 
 rangiffler-currency:
   base-uri: 'http://127.0.0.1:8091'
 rangiffler-userdata:
   base-uri: 'http://127.0.0.1:8089'
-rangiffler-spend:
-  base-uri: 'http://127.0.0.1:8093'
+rangiffler-photo:
+  base-uri: 'http://127.0.0.1:8095'
 rangiffler-front:
   base-uri: 'http://127.0.0.1:3001'
 ---

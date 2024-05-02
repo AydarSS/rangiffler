@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package guru.qa.grpc.rangiffler;
+
+service GeoService {
+  rpc GetAllCountries(google.protobuf.Empty) returns (CountryResponse) {}
+  rpc GetCountryByCode(CountryByCodeRequest) returns (Country) {}
+  rpc GetCountryById(CountryByIdRequest) returns (Country) {}
+}
+
+message CountryResponse {
+  repeated Country country = 1;
+}
+
+message CountryByCodeRequest {
+  string code = 1;
+}
+
+message CountryByIdRequest {
+  string id = 1;
+}
+
+message Country {
+  string id   = 1;
+  string flag = 2;
+  string code = 3;
+  string name = 4;
+}

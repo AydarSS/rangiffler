@@ -12,7 +12,6 @@ service UserService {
   rpc GetOutcomeInvitations(LinkedUsersByUsernameRequest) returns (UsersPageableResponse) {}
   rpc UpdateUser(UserAbout) returns (User) {}
   rpc IdentityFriendship(FriendshipAbout) returns (User) {}
-  rpc GetAllCountries(google.protobuf.Empty) returns (CountryResponse) {}
 }
 
 
@@ -34,7 +33,7 @@ message User {
   UsersPageableResponse friends = 7;
   UsersPageableResponse incomeInvitations = 8;
   UsersPageableResponse outcomeInvitations = 9;
-  Country country = 10;
+  string countryId = 10;
 }
 
 enum FriendsStatus {
@@ -56,12 +55,6 @@ message UsersPageableResponse {
   bool hasNext = 2;
 }
 
-message Country {
-  string flag = 1;
-  string code = 2;
-  string name = 3;
-}
-
 message LinkedUsersByUsernameRequest {
   string username = 1;
   PageableRequest pageInfo = 2;
@@ -72,7 +65,7 @@ message UserAbout {
   string firstname = 2;
   string surname = 3;
   string avatar = 4;
-  Country country = 5;
+  string countryId = 5;
 }
 
 message FriendshipAbout {
@@ -88,6 +81,3 @@ enum FriendshipAction {
   DELETE = 3;
 }
 
-message CountryResponse {
-  repeated Country country = 1;
-}

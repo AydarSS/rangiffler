@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+package guru.qa.grpc.rangiffler;
+
+service PhotoService {
+  rpc AddPhoto (AddPhotoRequest) returns (PhotoResponse) {}
+  rpc ChangePhoto (ChangePhotoRequest) returns (PhotoResponse) {}
+  rpc DeletePhoto (DeletePhotoRequest) returns (DeletePhotoResponse) {}
+  rpc GetPhotos (GetPhotosRequest) returns (GetPhotosResponse) {}
+  rpc ChangeLike (ChangeLikeRequest) returns (PhotoResponse) {}
+  rpc GetLikes (GetLikesRequest) returns (GetLikesResponse) {}
+  rpc GetPhotoCountryCode (GetPhotoCountryCodeRequest) returns (GetPhotoCountryCodeResponse) {}
+  rpc GetStat(GetStatRequest) returns (GetStatResponse) {}
+}
+
+message AddPhotoRequest {
+  string username = 1;
+  string src = 2;
+  string countryCode = 3;
+  string description = 4;
+}
+
+message PhotoResponse {
+  string username = 1;
+  string id = 2;
+  string src = 3;
+  string countryCode = 4;
+  string description = 5;
+  google.protobuf.Timestamp createdDate = 6;
+}
+
+message ChangePhotoRequest {
+  string id = 1;
+  string src = 2;
+  string countryCode = 3;
+  string description = 4;
+  google.protobuf.Timestamp createdDate = 5;
+}
+
+message DeletePhotoRequest {
+  string id = 1;
+}
+
+message DeletePhotoResponse {
+  bool isSuccess= 1;
+}
+
+message GetPhotosRequest {
+  repeated string username = 1;
+  PageableRequestWithoutSearchQuery pageInfo = 3;
+}
+
+message PageableRequestWithoutSearchQuery {
+  int32 page = 1;
+  int32 size = 2;
+}
+
+message GetPhotosResponse {
+    repeated Photo photos = 1;
+    bool hasNext = 2;
+}
+
+message ChangeLikeRequest {
+  string username = 1;
+  string userId = 2;
+  string photoId = 3;
+}
+
+message GetLikesRequest {
+  string photoId = 1;
+}
+
+message GetLikesResponse {
+  string photoId = 1;
+  repeated Like likes = 2;
+}
+
+message Photo {
+  string id = 1;
+  string username = 2;
+  string src = 3;
+  string countryCode = 4;
+  string description = 5;
+  google.protobuf.Timestamp createdDate = 6;
+}
+
+message Like {
+  string userId = 1;
+  string username = 2;
+  google.protobuf.Timestamp createdDate = 3;
+}
+
+message GetPhotoCountryCodeRequest {
+  string photoId = 1;
+}
+
+message GetPhotoCountryCodeResponse {
+  string code = 1;
+}
+
+message GetStatRequest {
+  repeated string username = 1;
+}
+
+message GetStatResponse {
+  repeated Statistic statistic = 1;
+}
+
+message Statistic {
+  int32 count = 1;
+  string countryCode = 2;
+}

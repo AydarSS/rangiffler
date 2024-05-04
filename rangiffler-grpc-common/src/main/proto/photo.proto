@@ -34,10 +34,9 @@ message PhotoResponse {
 
 message ChangePhotoRequest {
   string id = 1;
-  string src = 2;
-  string countryCode = 3;
-  string description = 4;
-  google.protobuf.Timestamp createdDate = 5;
+  string countryCode = 2;
+  string description = 3;
+  google.protobuf.Timestamp createdDate = 4;
 }
 
 message DeletePhotoRequest {
@@ -49,11 +48,14 @@ message DeletePhotoResponse {
 }
 
 message GetPhotosRequest {
-  repeated string username = 1;
-  PageableRequestWithoutSearchQuery pageInfo = 3;
+  repeated Username username = 1;
+  Paging pageInfo = 2;
+}
+message Username {
+  string username = 1;
 }
 
-message PageableRequestWithoutSearchQuery {
+message Paging {
   int32 page = 1;
   int32 size = 2;
 }
@@ -102,7 +104,7 @@ message GetPhotoCountryCodeResponse {
 }
 
 message GetStatRequest {
-  repeated string username = 1;
+  repeated Username username = 1;
 }
 
 message GetStatResponse {

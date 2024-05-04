@@ -7,7 +7,7 @@ import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
 import project.qa.rangiffler.service.grpc.ex.ResourceNotFoundException;
 
 @GrpcAdvice
-public class GeoAdvice {
+public class GrpcGeoAdvice {
 
   @GrpcExceptionHandler(ResourceNotFoundException.class)
   public StatusRuntimeException handleResourceNotFoundException (ResourceNotFoundException ex) {

@@ -15,10 +15,9 @@ public interface FriendshipRepository extends JpaRepository<FriendshipEntity, UU
   @Query("""
       select f from FriendshipEntity f 
       where (f.requester = :requester and f.addressee = :addresse)
-      or (f.requester = :addresse and f.addressee = :requester)
       """)
   Optional<FriendshipEntity> findFriendship(
       @Param("requester") UserEntity requester,
-      @Param("requester") UserEntity addresse);
+      @Param("addresse") UserEntity addresse);
 
 }

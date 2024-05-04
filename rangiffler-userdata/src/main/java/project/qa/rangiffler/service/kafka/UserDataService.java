@@ -1,12 +1,5 @@
-package project.qa.rangiffler.service;
+package project.qa.rangiffler.service.kafka;
 
-import jakarta.annotation.Nonnull;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

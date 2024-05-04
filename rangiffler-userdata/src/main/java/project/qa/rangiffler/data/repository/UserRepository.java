@@ -21,7 +21,7 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
 
   @Query("select u from UserEntity u where u.username <> :username" +
       " and (u.username like %:searchQuery% or u.firstname like %:searchQuery% or u.surname like %:searchQuery%)")
-  Slice<UserEntity> findByUsernameNotAndSearchQuery(@Param("username") String username,
+    Slice<UserEntity> findByUsernameNotAndSearchQuery(@Param("username") String username,
       @Nonnull Pageable pageable,
       @Param("searchQuery") String searchQuery);
 

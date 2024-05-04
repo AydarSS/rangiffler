@@ -16,4 +16,6 @@ public interface PhotoRepository extends JpaRepository<PhotoEntity, UUID> {
 
   Slice<PhotoEntity> findByUsernameIn(Collection<String> usernames, @Nonnull Pageable pageable);
 
+  List<PhotoEntity> findByUsernameIn(Collection<String> usernames);
+
 }

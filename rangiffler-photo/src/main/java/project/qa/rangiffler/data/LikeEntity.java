@@ -17,7 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "like")
+@Table(name = "photo_likes")
 public class LikeEntity {
 
   @Id

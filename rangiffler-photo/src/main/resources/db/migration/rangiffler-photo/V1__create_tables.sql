@@ -9,7 +9,7 @@ create table if not exists rangiffler_photo.photo
     primary key (id)
 );
 
-create table if not exists rangiffler_photo.like
+create table if not exists rangiffler_photo.photo_likes
 (
     id                      BINARY(16)  DEFAULT (UUID_TO_BIN(UUID())),
     user_id                 BINARY(16)  DEFAULT (UUID_TO_BIN(UUID())),

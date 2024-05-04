@@ -1,7 +1,5 @@
 package project.qa.rangiffler.service.api;
 
-import java.util.List;
-import project.qa.rangiffler.model.query.Country;
 import project.qa.rangiffler.model.query.Friendship;
 import project.qa.rangiffler.model.query.PageableObjects;
 import project.qa.rangiffler.model.query.User;

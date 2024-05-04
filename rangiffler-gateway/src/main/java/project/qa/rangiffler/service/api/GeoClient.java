@@ -6,7 +6,6 @@ import project.qa.rangiffler.model.query.Country;
 
 public interface GeoClient {
 
-
   Country findByCode(String code);
 
   Country findById(UUID id);

@@ -29,8 +29,7 @@ public class PhotoAggregatorService {
   private final GeoClient geoClient;
 
   @Autowired
-  public PhotoAggregatorService(UserClient userClient,
-      PhotoClient photoClient, GeoClient geoClient) {
+  public PhotoAggregatorService(UserClient userClient, PhotoClient photoClient, GeoClient geoClient) {
     this.userClient = userClient;
     this.photoClient = photoClient;
     this.geoClient = geoClient;
@@ -69,14 +68,15 @@ public class PhotoAggregatorService {
   }
 
   public List<Stat> findStats(Feed feed) {
+    final List<String> userNameList = new ArrayList<>();
     if (feed.withFriends()) {
       List<User> friends = userClient
           .friends(feed.username(),0, 1000000, null)
           .getObjects();
-      List<String> userNameList = friends
+      userNameList.addAll(friends
           .stream()
-          .map(us-> us.username())
-          .toList();
+          .map(us -> us.username())
+          .toList());
       userNameList.add(feed.username());
       return photoClient.getStat(userNameList);
     } else {

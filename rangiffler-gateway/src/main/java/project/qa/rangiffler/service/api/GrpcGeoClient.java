@@ -5,7 +5,6 @@ import guru.qa.grpc.rangiffler.CountryOuterClass;
 import guru.qa.grpc.rangiffler.CountryOuterClass.CountryByCodeRequest;
 import guru.qa.grpc.rangiffler.CountryOuterClass.CountryByIdRequest;
 import guru.qa.grpc.rangiffler.CountryOuterClass.CountryResponse;
-import guru.qa.grpc.rangiffler.GeoServiceGrpc;
 import guru.qa.grpc.rangiffler.GeoServiceGrpc.GeoServiceBlockingStub;
 import io.grpc.StatusRuntimeException;
 import java.util.List;
@@ -15,12 +14,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import project.qa.rangiffler.model.query.Country;
+import project.qa.rangiffler.service.api.utils.TypeConverter;
 
 @Component
 public class GrpcGeoClient implements GeoClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(GrpcGeoClient.class);
-  private GeoServiceGrpc.GeoServiceBlockingStub geoServiceBlockingStub;
+  private GeoServiceBlockingStub geoServiceBlockingStub;
+  private final TypeConverter typeConverter = new TypeConverter();
 
   @GrpcClient("grpcGeoClient")
   public void setGeoServiceBlockingStub(
@@ -36,7 +37,7 @@ public class GrpcGeoClient implements GeoClient {
             .build();
     try {
       CountryOuterClass.Country response = geoServiceBlockingStub.getCountryByCode(request);
-      return fromGrpc(response);
+      return typeConverter.fromGrpc(response);
     } catch (StatusRuntimeException ex) {
       throw new RuntimeException(ex);
     }
@@ -50,7 +51,7 @@ public class GrpcGeoClient implements GeoClient {
             .build();
     try {
       CountryOuterClass.Country response = geoServiceBlockingStub.getCountryById(request);
-      return fromGrpc(response);
+      return typeConverter.fromGrpc(response);
     } catch (StatusRuntimeException ex) {
       throw new RuntimeException(ex);
     }
@@ -59,14 +60,9 @@ public class GrpcGeoClient implements GeoClient {
   @Override
   public List<Country> findAll() {
     CountryResponse response = geoServiceBlockingStub.getAllCountries(Empty.newBuilder().build());
-    return response.getCountryList().stream().map(this::fromGrpc).toList();
+    return response.getCountryList().stream().map(country -> typeConverter.fromGrpc(country))
+        .toList();
   }
 
 
-  private Country fromGrpc(CountryOuterClass.Country grpcCountry) {
-    return new Country(UUID.fromString(grpcCountry.getId()),
-        grpcCountry.getFlag(),
-        grpcCountry.getCode(),
-        grpcCountry.getName());
-  }
 }

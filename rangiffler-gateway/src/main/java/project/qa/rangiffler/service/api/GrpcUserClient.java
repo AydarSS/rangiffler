@@ -1,5 +1,6 @@
 package project.qa.rangiffler.service.api;
 
+import com.google.protobuf.ByteString;
 import guru.qa.grpc.rangiffler.UserOuterClass;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendshipAbout;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendshipAction;
@@ -11,6 +12,8 @@ import guru.qa.grpc.rangiffler.UserOuterClass.UserByUsernameResponse;
 import guru.qa.grpc.rangiffler.UserOuterClass.UsersPageableResponse;
 import guru.qa.grpc.rangiffler.UserServiceGrpc;
 import guru.qa.grpc.rangiffler.UserServiceGrpc.UserServiceBlockingStub;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,14 +22,16 @@ import project.qa.rangiffler.model.query.Friendship;
 import project.qa.rangiffler.model.query.PageableObjects;
 import project.qa.rangiffler.model.query.PageableUsers;
 import project.qa.rangiffler.model.query.User;
-import project.qa.rangiffler.service.api.utils.ProtoTypeConverter;
+import project.qa.rangiffler.service.api.utils.TypeConverter;
 
 @Component
 public class GrpcUserClient implements UserClient {
 
+  private final String STRING_EMPTY = "";
+
   private static final Logger LOG = LoggerFactory.getLogger(GrpcUserClient.class);
   private UserServiceGrpc.UserServiceBlockingStub userServiceBlockingStub;
-  private final ProtoTypeConverter typeConverter = new ProtoTypeConverter();
+  private final TypeConverter typeConverter = new TypeConverter();
 
   @GrpcClient("grpcUserClient")
   public void setUserServiceBlockingStub(UserServiceBlockingStub userServiceBlockingStub) {
@@ -85,7 +90,8 @@ public class GrpcUserClient implements UserClient {
             .setFirstname(user.firstname())
             .setSurname(user.surname())
             .setAvatar(user.avatar())
-            .setCountryId(user.country().id().toString())
+            .setCountryId(
+                Objects.isNull(user.country().id()) ? STRING_EMPTY : user.country().id().toString())
             .build()
     );
     return typeConverter.fromProtoToUser(userGrpc);
@@ -122,7 +128,8 @@ public class GrpcUserClient implements UserClient {
     return PageableRequest.newBuilder()
         .setPage(page)
         .setSize(size)
-        .setSearchQuery(searchQuery)
+        .setSearchQuery(
+            Objects.isNull(searchQuery) ? STRING_EMPTY : searchQuery)
         .build();
   }
 }

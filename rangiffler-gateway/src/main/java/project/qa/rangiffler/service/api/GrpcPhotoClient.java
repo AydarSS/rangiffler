@@ -1,6 +1,5 @@
 package project.qa.rangiffler.service.api;
 
-import com.google.protobuf.Timestamp;
 import guru.qa.grpc.rangiffler.PhotoOuterClass;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.AddPhotoRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.ChangeLikeRequest;
@@ -13,28 +12,26 @@ import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotosRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotosResponse;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetStatRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetStatResponse;
-import guru.qa.grpc.rangiffler.PhotoOuterClass.PageableRequestWithoutSearchQuery;
+import guru.qa.grpc.rangiffler.PhotoOuterClass.Paging;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.PhotoResponse;
-import guru.qa.grpc.rangiffler.PhotoOuterClass.Statistic;
+import guru.qa.grpc.rangiffler.PhotoOuterClass.Username;
 import guru.qa.grpc.rangiffler.PhotoServiceGrpc.PhotoServiceBlockingStub;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
-import project.qa.rangiffler.model.query.Country;
 import project.qa.rangiffler.model.query.Like;
 import project.qa.rangiffler.model.query.PageableObjects;
 import project.qa.rangiffler.model.query.PageablePhoto;
 import project.qa.rangiffler.model.query.Photo;
 import project.qa.rangiffler.model.query.Stat;
+import project.qa.rangiffler.service.api.utils.TypeConverter;
 
 @Component
-public class PhotoGrpcClient implements PhotoClient {
+public class GrpcPhotoClient implements PhotoClient {
 
   private PhotoServiceBlockingStub photoServiceStub;
+  private final TypeConverter typeConverter = new TypeConverter();
 
   @GrpcClient("grpcPhotoClient")
   public void setPhotoServiceStub(PhotoServiceBlockingStub photoServiceStub) {
@@ -52,13 +49,7 @@ public class PhotoGrpcClient implements PhotoClient {
 
     PhotoResponse response = photoServiceStub.addPhoto(request);
 
-    return new Photo(
-        UUID.fromString(response.getId()),
-        response.getSrc(),
-        Country.withOnlyCode(response.getCountryCode()),
-        response.getDescription(),
-        convertToLocalDate(response.getCreatedDate()),
-        null);
+    return typeConverter.fromFrpc(response);
   }
 
   @Override
@@ -70,13 +61,7 @@ public class PhotoGrpcClient implements PhotoClient {
         .build();
     PhotoResponse response = photoServiceStub.changeLike(request);
 
-    return new Photo(
-        UUID.fromString(response.getId()),
-        response.getSrc(),
-        Country.withOnlyCode(response.getCountryCode()),
-        response.getDescription(),
-        convertToLocalDate(response.getCreatedDate()),
-        null);
+    return typeConverter.fromFrpc(response);
   }
 
   @Override
@@ -84,19 +69,12 @@ public class PhotoGrpcClient implements PhotoClient {
       String username) {
     ChangePhotoRequest request = ChangePhotoRequest.newBuilder()
         .setId(photoId.toString())
-        .setSrc(src)
         .setCountryCode(countryCode)
         .setDescription(description)
         .build();
     PhotoResponse response = photoServiceStub.changePhoto(request);
 
-    return new Photo(
-        UUID.fromString(response.getId()),
-        response.getSrc(),
-        Country.withOnlyCode(response.getCountryCode()),
-        response.getDescription(),
-        convertToLocalDate(response.getCreatedDate()),
-        null);
+    return typeConverter.fromFrpc(response);
   }
 
   @Override
@@ -110,18 +88,23 @@ public class PhotoGrpcClient implements PhotoClient {
 
   @Override
   public PageableObjects<Photo> getPhotos(List<String> usernameList, int size, int page) {
+    List<Username> usernamesProto = usernameList.stream()
+        .map(us->Username.newBuilder().setUsername(us).build())
+        .toList();
+
     GetPhotosRequest request = GetPhotosRequest.newBuilder()
-        .addAllUsername(usernameList)
-        .setPageInfo(PageableRequestWithoutSearchQuery.newBuilder()
+        .addAllUsername(usernamesProto)
+        .setPageInfo(Paging.newBuilder()
             .setSize(size)
             .setPage(page)
             .build())
         .build();
+
     GetPhotosResponse response = photoServiceStub.getPhotos(request);
     List<PhotoOuterClass.Photo> listPhoto = response.getPhotosList();
     List<Photo> photos = listPhoto
         .stream()
-        .map(this::fromGrpc)
+        .map(typeConverter::fromGrpc)
         .toList();
     return new PageablePhoto(photos, response.getHasNext());
   }
@@ -135,46 +118,24 @@ public class PhotoGrpcClient implements PhotoClient {
 
     return response.getLikesList()
         .stream()
-        .map(this::fromGrpc)
+        .map(typeConverter::fromGrpc)
         .toList();
   }
 
   @Override
   public List<Stat> getStat(List<String> users) {
+    List<Username> usernamesProto = users.stream()
+        .map(us->Username.newBuilder().setUsername(us).build())
+        .toList();
     GetStatRequest request = GetStatRequest.newBuilder()
-        .addAllUsername(users)
+        .addAllUsername(usernamesProto)
         .build();
 
     GetStatResponse response = photoServiceStub.getStat(request);
     return response.getStatisticList()
         .stream()
-        .map(this::fromGrpc)
+        .map(typeConverter::fromGrpc)
         .toList();
   }
 
-  private LocalDate convertToLocalDate(Timestamp timestamp) {
-    Instant instant = Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
-    LocalDate time = instant.atZone(ZoneOffset.UTC).toLocalDate();
-    return time;
-  }
-
-  private Photo fromGrpc(PhotoOuterClass.Photo grpcPhoto) {
-    return new Photo(
-        UUID.fromString(grpcPhoto.getId()),
-        grpcPhoto.getSrc(),
-        Country.withOnlyCode(grpcPhoto.getCountryCode()),
-        grpcPhoto.getDescription(),
-        convertToLocalDate(grpcPhoto.getCreatedDate()),
-        null);
-  }
-
-  private Like fromGrpc(PhotoOuterClass.Like grpcLike) {
-    return new Like(UUID.fromString(grpcLike.getUserId()),
-        grpcLike.getUsername(),
-        convertToLocalDate(grpcLike.getCreatedDate()));
-  }
-
-  private Stat fromGrpc(Statistic statistic) {
-    return new Stat(statistic.getCount(), Country.withOnlyCode(statistic.getCountryCode()));
-  }
 }

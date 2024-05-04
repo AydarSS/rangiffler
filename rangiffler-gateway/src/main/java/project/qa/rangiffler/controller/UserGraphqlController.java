@@ -39,7 +39,7 @@ public class UserGraphqlController {
       @Argument int page,
       @Argument int size,
       @Argument @Nullable String searchQuery) {
-    PageableObjects pageableUsers = userAggregatorService.friends(user.username(), page, size,
+    PageableObjects<User> pageableUsers = userAggregatorService.friends(user.username(), page, size,
         searchQuery);
     return createSlice(page, size, pageableUsers);
   }
@@ -49,7 +49,7 @@ public class UserGraphqlController {
       @Argument int page,
       @Argument int size,
       @Argument @Nullable String searchQuery) {
-    PageableObjects pageableUsers = userAggregatorService.incomeInvitations(user.username(), page,
+    PageableObjects<User> pageableUsers = userAggregatorService.incomeInvitations(user.username(), page,
         size,
         searchQuery);
     return createSlice(page, size, pageableUsers);
@@ -65,7 +65,7 @@ public class UserGraphqlController {
       @Argument int page,
       @Argument int size,
       @Argument @Nullable String searchQuery) {
-    PageableObjects pageableUsers = userAggregatorService.outcomeInvitations(user.username(), page,
+    PageableObjects<User> pageableUsers = userAggregatorService.outcomeInvitations(user.username(), page,
         size,
         searchQuery);
     return createSlice(page, size, pageableUsers);
@@ -77,7 +77,7 @@ public class UserGraphqlController {
       @Argument int size,
       @Argument @Nullable String searchQuery) {
     String username = principal.getClaim("sub");
-    PageableObjects pageableUsers = userAggregatorService.allUsers(username, page, size,
+    PageableObjects<User> pageableUsers = userAggregatorService.allUsers(username, page, size,
         searchQuery);
     return createSlice(page, size, pageableUsers);
   }
@@ -102,10 +102,10 @@ public class UserGraphqlController {
     return userAggregatorService.updateUser(User.fromUserInput(input, username));
   }
 
-  private Slice<User> createSlice(int page, int size, PageableObjects pageableObjects) {
+  private Slice<User> createSlice(int page, int size, PageableObjects<User> pageableObjects) {
     return pageableObjects.getObjects().isEmpty() ?
         null :
-        new SliceImpl<User>(pageableObjects.getObjects(),
+        new SliceImpl<>(pageableObjects.getObjects(),
             PageRequest.of(page, size),
             pageableObjects.isHasNext());
   }

@@ -42,24 +42,28 @@ spring:
 
 grpc:
   client:
-    grpcUserClient:
-      address: 'static://localhost:8090'
+    GLOBAL:
+      max-inbound-message-size: 9999999
+    grpcGeoClient:
+      address: 'static://localhost:8086'
       negotiationType: PLAINTEXT
     grpcPhotoClient:
       address: 'static://localhost:8096'
       negotiationType: PLAINTEXT
-    grpcGeoClient:
-      address: 'static://localhost:8086'
+    grpcUserClient:
+      address: 'static://localhost:8090'
       negotiationType: PLAINTEXT
 
-rangiffler-currency:
-  base-uri: 'http://127.0.0.1:8091'
+
 rangiffler-userdata:
   base-uri: 'http://127.0.0.1:8089'
 rangiffler-photo:
   base-uri: 'http://127.0.0.1:8095'
+rangiffler-geo:
+  base-uri: 'http://127.0.0.1:8085'
 rangiffler-front:
   base-uri: 'http://127.0.0.1:3001'
+
 ---
 spring:
   config:
@@ -82,8 +86,7 @@ grpc:
       address: 'static://currency.rangiffler.dc:8092'
       negotiationType: PLAINTEXT
 
-rangiffler-currency:
-  base-uri: 'http://currency.rangiffler.dc:8091'
+
 rangiffler-userdata:
   base-uri: 'http://userdata.rangiffler.dc:8089'
 rangiffler-spend:

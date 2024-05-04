@@ -90,7 +90,6 @@ public class PhotoGraphqlController {
   @ResponseStatus(HttpStatus.CREATED)
   public Photo photo(@AuthenticationPrincipal Jwt principal, @Argument PhotoInput input) {
     String username = principal.getClaim("sub");
-    photoService.changePhoto(username, input);
     if (Objects.isNull(input.id())) {
       return photoService.savePhoto(username, input);
     } else if (Objects.nonNull(input.like())) {

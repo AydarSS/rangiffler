@@ -14,6 +14,7 @@ service PhotoService {
   rpc GetLikes (GetLikesRequest) returns (GetLikesResponse) {}
   rpc GetPhotoCountryCode (GetPhotoCountryCodeRequest) returns (GetPhotoCountryCodeResponse) {}
   rpc GetStat(GetStatRequest) returns (GetStatResponse) {}
+  rpc GetPhoto(GetPhotoByIdRequest) returns(PhotoResponse) {}
 }
 
 message AddPhotoRequest {
@@ -109,6 +110,10 @@ message GetStatRequest {
 
 message GetStatResponse {
   repeated Statistic statistic = 1;
+}
+
+message GetPhotoByIdRequest{
+  string id = 1;
 }
 
 message Statistic {

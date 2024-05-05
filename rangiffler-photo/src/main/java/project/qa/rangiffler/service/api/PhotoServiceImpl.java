@@ -50,6 +50,10 @@ public class PhotoServiceImpl implements PhotoService {
   @Override
   public boolean deletePhoto(String id) {
     PhotoEntity forDelete = findById(id);
+    List<LikeEntity> likes = findLikes(id);
+    if (!likes.isEmpty()) {
+      likeRepository.deleteAll(likes);
+    }
     photoRepository.delete(forDelete);
     return true;
   }

@@ -7,12 +7,14 @@ import guru.qa.grpc.rangiffler.PhotoOuterClass.DeletePhotoRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.DeletePhotoResponse;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetLikesRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetLikesResponse;
+import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotoByIdRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotoCountryCodeRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotoCountryCodeResponse;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotosRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotosResponse;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetStatRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetStatResponse;
+import guru.qa.grpc.rangiffler.PhotoOuterClass.Photo;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.PhotoResponse;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.Statistic;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.Username;
@@ -181,4 +183,14 @@ public class GrpcPhotoReceiver extends PhotoServiceGrpc.PhotoServiceImplBase {
     responseObserver.onCompleted();
   }
 
+  @Override
+  public void getPhoto(GetPhotoByIdRequest request,
+      StreamObserver<PhotoResponse> responseObserver) {
+    PhotoEntity photo = photoService.findById(request.getId());
+
+    PhotoResponse response = GrpcToEntityConverter.toPhotoResponse(photo);
+
+    responseObserver.onNext(response);
+    responseObserver.onCompleted();
+  }
 }

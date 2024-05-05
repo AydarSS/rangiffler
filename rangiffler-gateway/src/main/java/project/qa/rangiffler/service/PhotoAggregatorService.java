@@ -20,6 +20,7 @@ import project.qa.rangiffler.model.query.User;
 import project.qa.rangiffler.service.api.GeoClient;
 import project.qa.rangiffler.service.api.PhotoClient;
 import project.qa.rangiffler.service.api.UserClient;
+import project.qa.rangiffler.service.ex.ForbiddedToChangeResource;
 
 @Service
 public class PhotoAggregatorService {
@@ -91,12 +92,19 @@ public class PhotoAggregatorService {
         username);
   }
 
-  public Photo changePhoto(String username, PhotoInput input) {
+  public Photo changePhoto(String currentUsername, PhotoInput input) {
+    String createdPhotoUsername = photoClient.getCreatedPhotoUsernameByPhotoId(input.id());
+    if (!createdPhotoUsername.equals(currentUsername)) {
+      throw new ForbiddedToChangeResource(
+          String.format("User %s can not change photo created by %s"
+              ,currentUsername,
+              createdPhotoUsername));
+    }
     return photoClient.changePhoto(input.id(),
         input.src(),
         input.country().code(),
         input.description(),
-        username);
+        currentUsername);
   }
 
   public Photo changeLike(String username, PhotoInput input) {
@@ -104,7 +112,14 @@ public class PhotoAggregatorService {
     return photoClient.changeLike(username,user.id(), input.id());
   }
 
-  public boolean deletePhoto(String username, UUID photoId) {
+  public boolean deletePhoto(String currentUsername, UUID photoId) {
+    String createdPhotoUsername = photoClient.getCreatedPhotoUsernameByPhotoId(photoId);
+    if (!createdPhotoUsername.equals(currentUsername)) {
+      throw new ForbiddedToChangeResource(
+          String.format("User %s can not delete photo created by %s"
+              ,currentUsername,
+              createdPhotoUsername));
+    }
     return photoClient.deletePhoto(photoId);
   }
 }

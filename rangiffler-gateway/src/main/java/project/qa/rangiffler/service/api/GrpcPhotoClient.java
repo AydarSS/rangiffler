@@ -8,6 +8,7 @@ import guru.qa.grpc.rangiffler.PhotoOuterClass.DeletePhotoRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.DeletePhotoResponse;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetLikesRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetLikesResponse;
+import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotoByIdRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotosRequest;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetPhotosResponse;
 import guru.qa.grpc.rangiffler.PhotoOuterClass.GetStatRequest;
@@ -138,4 +139,14 @@ public class GrpcPhotoClient implements PhotoClient {
         .toList();
   }
 
+  @Override
+  public String getCreatedPhotoUsernameByPhotoId(UUID photoId) {
+    GetPhotoByIdRequest request = GetPhotoByIdRequest.newBuilder()
+        .setId(photoId.toString())
+        .build();
+
+    PhotoResponse response = photoServiceStub.getPhoto(request);
+
+    return response.getUsername();
+  }
 }

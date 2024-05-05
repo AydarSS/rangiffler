@@ -24,5 +24,5 @@ public interface PhotoClient {
 
   List<Stat> getStat(List<String> usernames);
 
-
+  String getCreatedPhotoUsernameByPhotoId(UUID photoId);
 }

@@ -5,4 +5,5 @@ include 'rangiffler-grpc-common'
 include 'rangiffler-userdata'
 include 'rangiffler-photo'
 include 'rangiffler-geo'
+include 'rangiffler-e-2-e-tests'
 

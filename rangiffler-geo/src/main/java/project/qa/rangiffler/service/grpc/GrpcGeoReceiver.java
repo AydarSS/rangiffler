@@ -47,7 +47,6 @@ public class GrpcGeoReceiver extends GeoServiceGrpc.GeoServiceImplBase {
 
   @Override
   public void getCountryById(CountryByIdRequest request, StreamObserver<Country> responseObserver) {
-    super.getCountryById(request, responseObserver);
     try {
       Country response = handler.getById(request.getId());
       responseObserver.onNext(response);

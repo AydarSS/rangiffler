@@ -84,13 +84,13 @@ public class UserDataServiceImpl implements UserDataService {
       String searchQuery) {
     UserEntity current = findByUsername(username);
     if (isEmpty(searchQuery) && isPageableIsNotExistsIn(pageable)) {
-      return userRepository.findIncomeInvitations(current);
+      return userRepository.findOutcomeInvitations(current);
     } else if (isEmpty(searchQuery)) {
-      return userRepository.findIncomeInvitations(current, pageable);
+      return userRepository.findOutcomeInvitations(current, pageable);
     } else if (isPageableIsNotExistsIn(pageable)) {
-      return userRepository.findIncomeInvitations(current, searchQuery);
+      return userRepository.findOutcomeInvitations(current, searchQuery);
     } else {
-      return userRepository.findIncomeInvitations(current, pageable, searchQuery);
+      return userRepository.findOutcomeInvitations(current, pageable, searchQuery);
     }
   }
 
@@ -98,19 +98,14 @@ public class UserDataServiceImpl implements UserDataService {
   public void addFriendshipRequest(String linkedUserId, String currentUsername) {
     UserEntity linked = userRepository.findById(UUID.fromString(linkedUserId)).orElseThrow();
     UserEntity currentUser = userRepository.findByUsername(currentUsername).orElseThrow();
-    FriendshipEntity friendship = friendshipRepository.findFriendship(linked,
-        currentUser).orElseThrow();
+    FriendshipEntity friendship = new FriendshipEntity();
 
-    friendship.setStatus(FriendshipStatus.ACCEPTED);
+    friendship.setRequester(currentUser);
+    friendship.setAddressee(linked);
+    friendship.setStatus(FriendshipStatus.PENDING);
+    friendship.setCreatedDate(LocalDateTime.now());
+
     friendshipRepository.save(friendship);
-
-    FriendshipEntity friendshipEntity = new FriendshipEntity();
-    friendshipEntity.setRequester(currentUser);
-    friendshipEntity.setAddressee(linked);
-
-    friendshipEntity.setStatus(FriendshipStatus.ACCEPTED);
-    friendshipEntity.setCreatedDate(LocalDateTime.now());
-    friendshipRepository.save(friendshipEntity);
   }
 
   @Override

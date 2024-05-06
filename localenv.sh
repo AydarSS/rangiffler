@@ -24,11 +24,11 @@ docker run --name=kafka -e KAFKA_BROKER_ID=1 \
 
 
 echo "### Create databases ###"
-sleep 30
-docker exec -i mysql_container mysql -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rangiffler_auth;"
-docker exec -i mysql_container mysql -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rangiffler_geo;"
-docker exec -i mysql_container mysql -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rangiffler_photo;"
-docker exec -i mysql_container mysql -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rangiffler_userdata;"
+sleep 10
+docker exec -i rangiffler-all mysql -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rangiffler_auth;"
+docker exec -i rangiffler-all mysql -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rangiffler_geo;"
+docker exec -i rangiffler-all mysql -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rangiffler_photo;"
+docker exec -i rangiffler-all mysql -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rangiffler_userdata;"
 
 
 echo '### Run frontend ###'

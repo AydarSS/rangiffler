@@ -22,6 +22,7 @@ public class UserAggregatorService {
 
   private final UserClient userClient;
   private final GeoClient geoClient;
+  private static final String STRING_EMPTY = "";
 
   @Autowired
   public UserAggregatorService(UserClient userClient,
@@ -30,42 +31,46 @@ public class UserAggregatorService {
     this.geoClient = geoClient;
   }
 
-  public PageableObjects<User> friends(String username, int page, int size, @Nullable String searchQuery) {
+  public PageableObjects<User> friends(String username, int page, int size,
+      @Nullable String searchQuery) {
     return findUsers(
         () -> userClient.friends(username, page, size, searchQuery));
   }
 
-  public PageableObjects<User> incomeInvitations(String username, int page, int size, @Nullable String searchQuery) {
+  public PageableObjects<User> incomeInvitations(String username, int page, int size,
+      @Nullable String searchQuery) {
     return findUsers(
-        () ->  userClient.incomeInvitations(username, page, size, searchQuery));
+        () -> userClient.incomeInvitations(username, page, size, searchQuery));
   }
 
-  public PageableObjects<User> outcomeInvitations(String username, int page, int size, @Nullable String searchQuery) {
+  public PageableObjects<User> outcomeInvitations(String username, int page, int size,
+      @Nullable String searchQuery) {
     return findUsers(
-        () ->  userClient.outcomeInvitations(username, page, size, searchQuery));
+        () -> userClient.outcomeInvitations(username, page, size, searchQuery));
   }
 
-  public PageableObjects<User> allUsers(String username, int page, int size, @Nullable String searchQuery) {
+  public PageableObjects<User> allUsers(String username, int page, int size,
+      @Nullable String searchQuery) {
     return findUsers(
-          () ->  userClient.allUsers(username, page, size, searchQuery));
+        () -> userClient.allUsers(username, page, size, searchQuery));
   }
 
   public User byUsername(String username) {
     User findedUser = userClient.byUsername(username);
-      return withCountryIfExists(findedUser);
+    return withCountryIfExists(findedUser);
   }
 
-  public User friendshipAction(Friendship friendship){
+  public User friendshipAction(Friendship friendship) {
     User user = userClient.friendshipAction(friendship);
     return withCountryIfExists(user);
   }
 
   public User updateUser(User user) {
     User updates;
-    if(Objects.nonNull(user.country().code())){
+    if (Objects.nonNull(user.country()) && !user.country().code().equals(STRING_EMPTY)) {
       Country country = geoClient.findByCode(user.country().code());
       updates = userClient.updateUser(user.withCountry(country));
-    }else {
+    } else {
       updates = userClient.updateUser(user);
     }
     return withCountryIfExists(updates);
@@ -87,12 +92,12 @@ public class UserAggregatorService {
 
   private User withCountryIfExists(User user) {
     Country country;
-      if (Objects.nonNull(user.country())) {
-        country = countryByIdOrEmpty(user.country().id());
-        return user.withCountry(country);
-      } else {
-        return user.withCountry(Country.emptyContry());
-      }
+    if (Objects.nonNull(user.country())) {
+      country = countryByIdOrEmpty(user.country().id());
+      return user.withCountry(country);
+    } else {
+      return user.withCountry(Country.emptyContry());
+    }
   }
 
   private Country countryByIdOrEmpty(UUID countryId) {
@@ -101,10 +106,10 @@ public class UserAggregatorService {
       country = geoClient.findById(countryId);
       return country;
     } catch (StatusRuntimeException ex) {
-        if (ex.getStatus().getCode().equals(Code.INVALID_ARGUMENT)) {
-          return Country.emptyContry();
-        } else {
-          throw new RuntimeException(ex);
+      if (ex.getStatus().getCode().equals(Code.INVALID_ARGUMENT)) {
+        return Country.emptyContry();
+      } else {
+        throw new RuntimeException(ex);
       }
     }
   }

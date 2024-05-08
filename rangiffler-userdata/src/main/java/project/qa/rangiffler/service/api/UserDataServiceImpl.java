@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import project.qa.rangiffler.data.FriendshipEntity;
 import project.qa.rangiffler.data.FriendshipStatus;
 import project.qa.rangiffler.data.UserEntity;
 import project.qa.rangiffler.data.repository.FriendshipRepository;
 import project.qa.rangiffler.data.repository.UserRepository;
+import project.qa.rangiffler.ex.ResourceNotFoundException;
 
 @Component
 public class UserDataServiceImpl implements UserDataService {
@@ -28,11 +30,15 @@ public class UserDataServiceImpl implements UserDataService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public UserEntity getCurrentUserByUsername(String username) {
-    return userRepository.findByUsername(username).orElseThrow();
+    return userRepository.findByUsername(username)
+        .orElseThrow(
+            () -> new ResourceNotFoundException(String.format("User %s not found", username)));
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Slice<UserEntity> findAllUsers(String username, Pageable pageable, String searchQuery) {
     if (isEmpty(searchQuery)) {
       return userRepository.findByUsernameNot(
@@ -46,11 +52,15 @@ public class UserDataServiceImpl implements UserDataService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public UserEntity findByUsername(String username) {
-    return userRepository.findByUsername(username).orElseThrow();
+    return userRepository.findByUsername(username)
+        .orElseThrow(
+            () -> new ResourceNotFoundException(String.format("User %s not found", username)));
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Slice<UserEntity> findFriends(String username, Pageable pageable, String searchQuery) {
     UserEntity current = findByUsername(username);
     if (isEmpty(searchQuery) && isPageableIsNotExistsIn(pageable)) {
@@ -65,6 +75,7 @@ public class UserDataServiceImpl implements UserDataService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Slice<UserEntity> findIncomeInvitations(String username, Pageable pageable,
       String searchQuery) {
     UserEntity current = findByUsername(username);
@@ -80,6 +91,7 @@ public class UserDataServiceImpl implements UserDataService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Slice<UserEntity> findOutcomeInvitations(String username, Pageable pageable,
       String searchQuery) {
     UserEntity current = findByUsername(username);
@@ -95,9 +107,10 @@ public class UserDataServiceImpl implements UserDataService {
   }
 
   @Override
+  @Transactional
   public void addFriendshipRequest(String linkedUserId, String currentUsername) {
-    UserEntity linked = userRepository.findById(UUID.fromString(linkedUserId)).orElseThrow();
-    UserEntity currentUser = userRepository.findByUsername(currentUsername).orElseThrow();
+    UserEntity linked = findById(linkedUserId);
+    UserEntity currentUser = findByUsername(currentUsername);
     FriendshipEntity friendship = new FriendshipEntity();
 
     friendship.setRequester(currentUser);
@@ -109,11 +122,11 @@ public class UserDataServiceImpl implements UserDataService {
   }
 
   @Override
+  @Transactional
   public void acceptFriendshipRequest(String linkedUserId, String currentUsername) {
-    UserEntity linked = userRepository.findById(UUID.fromString(linkedUserId)).orElseThrow();
-    UserEntity currentUser = userRepository.findByUsername(currentUsername).orElseThrow();
-    FriendshipEntity friendship = friendshipRepository.findFriendship(linked,
-        currentUser).orElseThrow();
+    UserEntity linked = findById(linkedUserId);
+    UserEntity currentUser = findByUsername(currentUsername);
+    FriendshipEntity friendship = findFriendship(linked, currentUser);
 
     friendship.setStatus(FriendshipStatus.ACCEPTED);
     friendshipRepository.save(friendship);
@@ -128,9 +141,10 @@ public class UserDataServiceImpl implements UserDataService {
   }
 
   @Override
+  @Transactional
   public void rejectFriendshipRequest(String linkedUserId, String currentUsername) {
-    UserEntity linked = userRepository.findById(UUID.fromString(linkedUserId)).orElseThrow();
-    UserEntity currentUser = userRepository.findByUsername(currentUsername).orElseThrow();
+    UserEntity linked = findById(linkedUserId);
+    UserEntity currentUser = findByUsername(currentUsername);
 
     FriendshipEntity friendshipEntity = new FriendshipEntity();
     friendshipEntity.setRequester(linked);
@@ -139,21 +153,23 @@ public class UserDataServiceImpl implements UserDataService {
   }
 
   @Override
+  @Transactional
   public void deleteFriendshipRequest(String linkedUserId, String currentUsername) {
-    UserEntity linked = userRepository.findById(UUID.fromString(linkedUserId)).orElseThrow();
-    UserEntity currentUser = userRepository.findByUsername(currentUsername).orElseThrow();
+    UserEntity linked = findById(linkedUserId);
+    UserEntity currentUser = findByUsername(currentUsername);
 
-    FriendshipEntity request = friendshipRepository.findFriendship(currentUser, linked)
-        .orElseThrow();
+    FriendshipEntity request = findFriendship(currentUser, linked);
     friendshipRepository.delete(request);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<FriendshipEntity> findFrienship(UserEntity requester, UserEntity addresse) {
     return friendshipRepository.findFriendship(requester, addresse);
   }
 
   @Override
+  @Transactional
   public UserEntity updateUser(String username, String firstname, String surname, String avatar,
       String countryId) {
     UserEntity forUpdate = userRepository.findByUsername(username).orElseThrow();
@@ -173,6 +189,20 @@ public class UserDataServiceImpl implements UserDataService {
 
   private boolean isPageableIsNotExistsIn(Pageable pageable) {
     return pageable.getPageSize() == 0 && pageable.getPageNumber() == 0;
+  }
+
+  private UserEntity findById(String userId) {
+    return userRepository.findById(UUID.fromString(userId))
+        .orElseThrow(() -> new ResourceNotFoundException(
+            String.format("UserId %s not found", userId)));
+  }
+
+  private FriendshipEntity findFriendship(UserEntity userFirst, UserEntity userSecond) {
+    return friendshipRepository.findFriendship(userFirst, userSecond)
+        .orElseThrow(() -> new ResourceNotFoundException(
+            String.format("Friendship between %s and %s not found",
+                userFirst.getUsername(),
+                userSecond.getUsername())));
   }
 
 }

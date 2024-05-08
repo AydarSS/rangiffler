@@ -9,7 +9,7 @@ import okhttp3.Interceptor;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
-import project.qa.rangiffler.api.aycookie.ThreadSafeCookieManager;
+import project.qa.rangiffler.api.cookie.ThreadSafeCookieManager;
 import project.qa.rangiffler.config.Config;
 import retrofit2.Converter;
 import retrofit2.Retrofit;

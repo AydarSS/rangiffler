@@ -18,7 +18,7 @@ public class Grid extends BaseComponent<Grid> {
   }
 
   @Step("Получим элемент photoItem по индексу {}")
-  public PhotoItem getPhotoItem(int index) {
-    return new PhotoItem(photoItems.get(index));
+  public PhotoContainer getPhotoItem(int index) {
+    return new PhotoContainer(photoItems.get(index));
   }
 }

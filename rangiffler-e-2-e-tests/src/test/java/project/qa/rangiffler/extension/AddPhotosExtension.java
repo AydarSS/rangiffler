@@ -69,14 +69,6 @@ public abstract class AddPhotosExtension implements BeforeEachCallback, Paramete
 
   protected abstract void addLike(String username, String userId,String photoId);
 
-  private String getSrcFromFile(String filename) {
-    try (InputStream is = cl.getResourceAsStream(filename)) {
-      return Base64.getEncoder().encodeToString(is.readAllBytes());
-    } catch (IOException e) {
-      throw new ParameterResolutionException(e.getMessage());
-    }
-  }
-
   private void checkThatEnterParameterInMethodIsOne(List<WithPhoto> withPhotos) {
     int countPhotosWithEnterInMethod = withPhotos.stream()
         .filter(WithPhoto::enterInMethod)
@@ -90,6 +82,14 @@ public abstract class AddPhotosExtension implements BeforeEachCallback, Paramete
   private Photo savePhoto(WithPhoto photo) {
     String src = getSrcFromFile(photo.filename());
     return addPhoto(src, photo.username(), photo.countryCode(), photo.description());
+  }
+
+  private String getSrcFromFile(String filename) {
+    try (InputStream is = cl.getResourceAsStream(filename)) {
+      return "data:image/png;base64," + Base64.getEncoder().encodeToString(is.readAllBytes());
+    } catch (IOException e) {
+      throw new ParameterResolutionException(e.getMessage());
+    }
   }
 
   private void saveLike(WithPhoto photo, UUID photoId) {

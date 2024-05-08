@@ -7,23 +7,13 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TestUser {
+public @interface AddedPhotos {
 
-  String username() default "";
-
-  String firstname() default "";
-
-  String lastname() default "";
-
-  String avatar() default "";
+  String filename() default "";
 
   String countryCode() default "";
 
-  WithPartners[] partners() default {};
+  String description() default "";
 
-  boolean generateRandom() default false;
-
-  AddedPhotos[] photos() default {};
-
-
+  WithLike likes() default @WithLike;
 }

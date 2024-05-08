@@ -7,12 +7,12 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WithLike {
+public @interface LikeInfo {
 
-  String username() default "";
+  int  countLikes() default 0;
 
-  String userId()  default "";
+  boolean withLikeAuthorizedUser() default false;
 
-  LikeInfo likeInfo() default @LikeInfo;
+  boolean withLCreatedPhotoUser() default false;
 
 }

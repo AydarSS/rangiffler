@@ -2,8 +2,6 @@ package project.qa.rangiffler.extension;
 
 import static org.awaitility.Awaitility.await;
 
-import com.github.javafaker.Faker;
-import com.google.common.base.Stopwatch;
 import guru.qa.grpc.rangiffler.UserOuterClass;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendsStatus;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendshipAbout;
@@ -13,26 +11,34 @@ import guru.qa.grpc.rangiffler.UserOuterClass.UserByUsernameResponse;
 import io.grpc.StatusRuntimeException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import project.qa.rangiffler.api.AuthApiClient;
+import project.qa.rangiffler.extension.grpc.client.GrpcGeoClient;
+import project.qa.rangiffler.extension.grpc.client.GrpcPhotoClient;
+import project.qa.rangiffler.extension.grpc.client.GrpcUserClient;
+import project.qa.rangiffler.extension.grpc.utils.TypeConverter;
 import project.qa.rangiffler.model.Country;
 import project.qa.rangiffler.model.FriendStatus;
+import project.qa.rangiffler.model.Photo;
 import project.qa.rangiffler.model.TestData;
 import project.qa.rangiffler.model.User;
 import project.qa.rangiffler.stub.UserServiceStub;
 
-public class GrpcAddUsersExtension extends AddUsersExtension{
+public class GrpcAddUsersExtension extends AddUsersExtension {
 
   private final AuthApiClient authApiClient = new AuthApiClient();
-  private final String STRING_EMPTY = "";
-  private final String PASSWORD = "12345";
+  private final GrpcPhotoClient photoClient = new GrpcPhotoClient();
+  private final GrpcGeoClient geoClient = new GrpcGeoClient();
+  private final GrpcUserClient userClient = new GrpcUserClient();
 
   @Override
   protected User createUser(User user) {
     authApiClient.doRegister(user.username(), user.testData().password());
     awaitWhileUserSavedInUserdata(user.username());
     UserOuterClass.User protoUser = getUserByUsername(user.username());
+    String STRING_EMPTY = "";
     return new User(
         UUID.fromString(protoUser.getId()),
         protoUser.getUsername(),
@@ -54,21 +60,46 @@ public class GrpcAddUsersExtension extends AddUsersExtension{
   }
 
   @Override
-  protected void savePartner(FriendStatus friendStatus, String currentUsername, String currentUserId) {
-    Faker faker = new Faker();
-    String username = faker.name().username();
-    authApiClient.doRegister(username, PASSWORD);
-    awaitWhileUserSavedInUserdata(username);
-    UserOuterClass.User protoUser = getUserByUsername(username);
-    switch (friendStatus) {
-      case INVITATION_SENT -> sendInvitation(currentUsername, protoUser.getId());
-      case FRIEND -> createFriendship(currentUsername,currentUserId, protoUser);
-      case INVITATION_RECEIVED -> sendInvitation(protoUser.getUsername(),currentUserId);
-      case NOT_FRIEND -> {}
-    }
+  protected Photo addPhoto(String src, String username, String countryCode, String description) {
+    return photoClient.addPhoto(src, countryCode, description, username);
   }
 
-  private void sendInvitation(String currentUsername, String anotherUserId){
+  @Override
+  protected void addLike(String username, String userId, String photoId) {
+    photoClient.changeLike(username,
+        UUID.fromString(userId),
+        UUID.fromString(photoId));
+  }
+
+  @Override
+  protected User savePartner(User partner,
+      String currentUsername,
+      String currentUserId) {
+    authApiClient.doRegister(partner.username(), partner.testData().password());
+    awaitWhileUserSavedInUserdata(partner.username());
+    User readyUser = updateUser(partner);
+    switch (partner.friendStatus()) {
+      case INVITATION_SENT -> sendInvitation(currentUsername, readyUser.id().toString());
+      case FRIEND -> createFriendship(currentUsername, currentUserId, readyUser);
+      case INVITATION_RECEIVED -> sendInvitation(readyUser.username(), currentUserId);
+      case NOT_FRIEND -> {
+      }
+    }
+    return readyUser;
+  }
+
+  private User updateUser(User user) {
+    User updates;
+    if(Objects.nonNull(user.country()) && !user.country().code().equals("")){
+      Country country = geoClient.findByCode(user.country().code());
+      updates = userClient.updateUser(user.withCountry(country));
+    }else {
+      updates = userClient.updateUser(user);
+    }
+    return updates;
+  }
+
+  private void sendInvitation(String currentUsername, String anotherUserId) {
     UserServiceStub.stub.identityFriendship(
         FriendshipAbout.newBuilder()
             .setRequesterUsername(currentUsername)
@@ -78,17 +109,17 @@ public class GrpcAddUsersExtension extends AddUsersExtension{
     );
   }
 
-  private void createFriendship(String currentUsername, String currentUserId, UserOuterClass.User protoUser) {
+  private void createFriendship(String currentUsername, String currentUserId, User user) {
     UserServiceStub.stub.identityFriendship(
         FriendshipAbout.newBuilder()
             .setRequesterUsername(currentUsername)
-            .setAddresseeId(protoUser.getId())
+            .setAddresseeId(user.id().toString())
             .setFriendshipAction(FriendshipAction.ADD)
             .build());
 
     UserServiceStub.stub.identityFriendship(
         FriendshipAbout.newBuilder()
-            .setRequesterUsername(protoUser.getUsername())
+            .setRequesterUsername(user.username())
             .setAddresseeId(currentUserId)
             .setFriendshipAction(FriendshipAction.ACCEPT)
             .build());
@@ -96,22 +127,22 @@ public class GrpcAddUsersExtension extends AddUsersExtension{
 
   private void awaitWhileUserSavedInUserdata(String username) {
     await()
-        .atMost(30,TimeUnit.SECONDS)
+        .atMost(30, TimeUnit.SECONDS)
         .pollInterval(Duration.ofSeconds(1))
-        .until(()-> {
+        .until(() -> {
           try {
             UserByUsernameResponse response = UserServiceStub.stub.getUserByUsername(
                 UserByUsernameRequest.newBuilder()
                     .setUsername(username)
                     .build());
             return !response.getUser().getId().isEmpty();
-          }catch (StatusRuntimeException ignore) {
+          } catch (StatusRuntimeException ignore) {
           }
           return false;
         });
   }
 
-  private UserOuterClass.User getUserByUsername (String username) {
+  private UserOuterClass.User getUserByUsername(String username) {
     UserByUsernameResponse response = UserServiceStub.stub.getUserByUsername(
         UserByUsernameRequest.newBuilder()
             .setUsername(username)

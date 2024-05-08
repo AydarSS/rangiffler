@@ -5,14 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WithLike {
-
-  String username() default "";
-
-  String userId()  default "";
-
-  LikeInfo likeInfo() default @LikeInfo;
-
+@Target(ElementType.PARAMETER)
+public @interface Token {
 }

@@ -1,9 +1,12 @@
 package project.qa.rangiffler.test.grpc;
 
+
+import static io.grpc.Status.Code.INVALID_ARGUMENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import guru.qa.grpc.rangiffler.UserOuterClass;
@@ -13,11 +16,13 @@ import guru.qa.grpc.rangiffler.UserOuterClass.UserAbout;
 import guru.qa.grpc.rangiffler.UserOuterClass.UserByUsernameRequest;
 import guru.qa.grpc.rangiffler.UserOuterClass.UserByUsernameResponse;
 import guru.qa.grpc.rangiffler.UserOuterClass.UsersPageableResponse;
+import io.grpc.StatusRuntimeException;
 import io.qameta.allure.Step;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,6 +59,24 @@ public class UserdataServiceGrpcTest {
             .setUsername(user.username())
             .build());
     assertEquals(response.getUser().getUsername(), user.username());
+  }
+
+  @DisplayName("Получение несуществующего пользователя")
+  @Test
+  void byNotExistsUsernameTest() {
+    UserByUsernameRequest request = UserByUsernameRequest.newBuilder()
+        .setUsername("NotExists")
+        .build();
+
+    StatusRuntimeException ex = assertThrows(StatusRuntimeException.class,
+        ()-> UserServiceStub.stub.getUserByUsername(request));
+
+    assertAll(
+        ()-> assertEquals(INVALID_ARGUMENT,ex.getStatus().getCode(),
+            "Проверяем статус сообщения об ошибке"),
+        ()-> assertEquals("INVALID_ARGUMENT: User NotExists not found",ex.getMessage(),
+            "Проверяем текст сообщения об ошибке")
+    );
   }
 
   @DisplayName("Получение друзей, постраничное получение информации о друзьях")

@@ -9,13 +9,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WithPhoto {
 
-  String filename();
+  String filename() default "";
 
   String username() default "";
 
-  String countryCode();
+  String countryCode() default "";
 
-  String description();
+  String description() default "";
 
   boolean enterInMethod() default false;
 

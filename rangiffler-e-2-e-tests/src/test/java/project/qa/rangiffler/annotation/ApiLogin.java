@@ -5,14 +5,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WithLike {
+@Target(ElementType.METHOD)
+public @interface ApiLogin {
+
+  TestUser user() default @TestUser(generateRandom = true);
 
   String username() default "";
 
-  String userId()  default "";
-
-  LikeInfo likeInfo() default @LikeInfo;
+  String password() default "";
 
 }

@@ -19,6 +19,12 @@ public class WelcomePage extends BasePage<WelcomePage> {
     return new LoginPage();
   }
 
+  @Step("Redirect to register page")
+  public RegisterPage register() {
+    registerButton.click();
+    return new RegisterPage();
+  }
+
   @Override
   public WelcomePage waitForPageLoaded() {
     return null;

@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.UUID;
+import project.qa.rangiffler.extension.grpc.client.GrpcPhotoClient;
 import project.qa.rangiffler.model.Country;
 import project.qa.rangiffler.model.Likes;
 import project.qa.rangiffler.model.Photo;
@@ -15,34 +16,16 @@ import project.qa.rangiffler.stub.PhotoServiceStub;
 
 public class GrpcAddPhotoExtension extends AddPhotosExtension{
 
+  private final GrpcPhotoClient client = new GrpcPhotoClient();
+
   @Override
   protected Photo addPhoto(String src, String username, String countryCode,String description ) {
-    AddPhotoRequest request = AddPhotoRequest.newBuilder()
-        .setUsername(username)
-        .setCountryCode(countryCode)
-        .setSrc(src)
-        .setDescription(description)
-        .build();
-
-    PhotoResponse response = PhotoServiceStub.stub.addPhoto(request);
-    return new Photo(
-        UUID.fromString(response.getId()),
-        response.getSrc(),
-        Country.withOnlyCode(response.getCountryCode()),
-        response.getDescription(),
-        convertToLocalDate(response.getCreatedDate()),
-        new Likes(0,null));
+    return client.addPhoto(src,countryCode,description,username);
   }
 
   @Override
   protected void addLike(String username, String userId, String photoId) {
-    ChangeLikeRequest request = ChangeLikeRequest.newBuilder()
-        .setUsername(username)
-        .setPhotoId(photoId)
-        .setUserId(userId)
-        .build();
-
-    PhotoServiceStub.stub.changeLike(request);
+    client.changeLike(username,UUID.fromString(userId), UUID.fromString(photoId));
   }
 
   private LocalDate convertToLocalDate(Timestamp timestamp) {

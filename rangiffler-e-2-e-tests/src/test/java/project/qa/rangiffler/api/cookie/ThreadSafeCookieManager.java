@@ -1,4 +1,4 @@
-package project.qa.rangiffler.api.aycookie;
+package project.qa.rangiffler.api.cookie;
 
 import java.net.CookieManager;
 import java.net.CookiePolicy;

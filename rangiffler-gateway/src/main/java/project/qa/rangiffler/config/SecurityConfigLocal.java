@@ -30,12 +30,19 @@ public class SecurityConfigLocal {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     corsCustomizer.corsCustomizer(http);
 
-    http.authorizeHttpRequests(customizer ->
-        customizer.requestMatchers(antMatcher("/graphiql/**"))
-            .permitAll()
-            .anyRequest()
-            .authenticated()
-    ).oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
+    http.csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(customizer ->
+            customizer.requestMatchers(
+                    antMatcher("/session"),
+                    antMatcher("/actuator/health"),
+                    antMatcher("/graphiql/**"),
+                    antMatcher("/graphql/**"),
+                    antMatcher("/favicon.ico"),
+                    antMatcher(HttpMethod.POST, "/graphql")
+                ).permitAll()
+                .anyRequest()
+                .authenticated()
+        ).oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
     return http.build();
   }
 }

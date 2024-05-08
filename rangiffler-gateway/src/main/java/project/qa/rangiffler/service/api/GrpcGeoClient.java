@@ -6,6 +6,7 @@ import guru.qa.grpc.rangiffler.CountryOuterClass.CountryByCodeRequest;
 import guru.qa.grpc.rangiffler.CountryOuterClass.CountryByIdRequest;
 import guru.qa.grpc.rangiffler.CountryOuterClass.CountryResponse;
 import guru.qa.grpc.rangiffler.GeoServiceGrpc.GeoServiceBlockingStub;
+import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
 import java.util.List;
 import java.util.UUID;
@@ -39,7 +40,7 @@ public class GrpcGeoClient implements GeoClient {
       CountryOuterClass.Country response = geoServiceBlockingStub.getCountryByCode(request);
       return typeConverter.fromGrpc(response);
     } catch (StatusRuntimeException ex) {
-      throw new RuntimeException(ex);
+      throw new StatusRuntimeException(ex.getStatus());
     }
   }
 
@@ -53,7 +54,7 @@ public class GrpcGeoClient implements GeoClient {
       CountryOuterClass.Country response = geoServiceBlockingStub.getCountryById(request);
       return typeConverter.fromGrpc(response);
     } catch (StatusRuntimeException ex) {
-      throw new RuntimeException(ex);
+      throw new StatusRuntimeException(ex.getStatus());
     }
   }
 

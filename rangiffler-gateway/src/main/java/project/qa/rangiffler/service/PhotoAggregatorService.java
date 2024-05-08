@@ -1,5 +1,7 @@
 package project.qa.rangiffler.service;
 
+import io.grpc.Status.Code;
+import io.grpc.StatusRuntimeException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +39,15 @@ public class PhotoAggregatorService {
   }
 
   public Country findCountryBy(Photo photo) {
-    return geoClient.findByCode(photo.contry().code());
+    try{
+      return geoClient.findByCode(photo.contry().code());
+    } catch (StatusRuntimeException ex) {
+      if (ex.getStatus().getCode().equals(Code.INVALID_ARGUMENT)) {
+        return Country.emptyContry();
+      } else {
+        throw new RuntimeException(ex);
+      }
+    }
   }
 
   public Likes findTotalLikes(Photo photo) {

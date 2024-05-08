@@ -1,10 +1,12 @@
 package project.qa.rangiffler.service;
 
+import io.grpc.Status.Code;
+import io.grpc.StatusRuntimeException;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Supplier;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import project.qa.rangiffler.model.query.Country;
@@ -59,7 +61,13 @@ public class UserAggregatorService {
   }
 
   public User updateUser(User user) {
-    User updates = userClient.updateUser(user);
+    User updates;
+    if(Objects.nonNull(user.country().code())){
+      Country country = geoClient.findByCode(user.country().code());
+      updates = userClient.updateUser(user.withCountry(country));
+    }else {
+      updates = userClient.updateUser(user);
+    }
     return withCountryIfExists(updates);
   }
 
@@ -79,12 +87,25 @@ public class UserAggregatorService {
 
   private User withCountryIfExists(User user) {
     Country country;
-    if (Objects.nonNull(user.country())) {
-      country = geoClient.findById(user.country().id());
-      return user.withCountry(country);
-    } else {
-      country = new Country(null,"","","");
-      return user.withCountry(country);
+      if (Objects.nonNull(user.country())) {
+        country = countryByIdOrEmpty(user.country().id());
+        return user.withCountry(country);
+      } else {
+        return user.withCountry(Country.emptyContry());
+      }
+  }
+
+  private Country countryByIdOrEmpty(UUID countryId) {
+    Country country;
+    try {
+      country = geoClient.findById(countryId);
+      return country;
+    } catch (StatusRuntimeException ex) {
+        if (ex.getStatus().getCode().equals(Code.INVALID_ARGUMENT)) {
+          return Country.emptyContry();
+        } else {
+          throw new RuntimeException(ex);
+      }
     }
   }
 }

@@ -36,4 +36,8 @@ public record Country(
             null);
     }
 
+    public static Country emptyContry(){
+        return new Country(null,"","","");
+    }
+
 }

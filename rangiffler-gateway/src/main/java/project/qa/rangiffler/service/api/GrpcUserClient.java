@@ -1,6 +1,5 @@
 package project.qa.rangiffler.service.api;
 
-import com.google.protobuf.ByteString;
 import guru.qa.grpc.rangiffler.UserOuterClass;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendshipAbout;
 import guru.qa.grpc.rangiffler.UserOuterClass.FriendshipAction;
@@ -12,7 +11,7 @@ import guru.qa.grpc.rangiffler.UserOuterClass.UserByUsernameResponse;
 import guru.qa.grpc.rangiffler.UserOuterClass.UsersPageableResponse;
 import guru.qa.grpc.rangiffler.UserServiceGrpc;
 import guru.qa.grpc.rangiffler.UserServiceGrpc.UserServiceBlockingStub;
-import java.nio.charset.StandardCharsets;
+import io.grpc.StatusRuntimeException;
 import java.util.Objects;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.slf4j.Logger;
@@ -28,7 +27,7 @@ import project.qa.rangiffler.service.api.utils.TypeConverter;
 public class GrpcUserClient implements UserClient {
 
   private final String STRING_EMPTY = "";
-
+  private final String CALLING_GRPC_ERROR_TEXT = "### Error while calling gRPC server to UserData service";
   private static final Logger LOG = LoggerFactory.getLogger(GrpcUserClient.class);
   private UserServiceGrpc.UserServiceBlockingStub userServiceBlockingStub;
   private final TypeConverter typeConverter = new TypeConverter();
@@ -47,7 +46,7 @@ public class GrpcUserClient implements UserClient {
               .build());
       return typeConverter.fromProtoToUser(response.getUser());
     } catch (Exception ex) {
-      LOG.error("### Error while calling gRPC server ", ex);
+      LOG.error(CALLING_GRPC_ERROR_TEXT, ex);
       throw new RuntimeException(ex);
     }
   }
@@ -84,7 +83,9 @@ public class GrpcUserClient implements UserClient {
 
   @Override
   public User updateUser(User user) {
-    UserOuterClass.User userGrpc = userServiceBlockingStub.updateUser(
+    UserOuterClass.User userGrpc;
+    try {
+    userGrpc = userServiceBlockingStub.updateUser(
         UserAbout.newBuilder()
             .setUsername(user.username())
             .setFirstname(user.firstname())
@@ -94,23 +95,38 @@ public class GrpcUserClient implements UserClient {
                 Objects.isNull(user.country().id()) ? STRING_EMPTY : user.country().id().toString())
             .build()
     );
+  } catch (StatusRuntimeException e) {
+    LOG.error(CALLING_GRPC_ERROR_TEXT, e);
+    throw new RuntimeException(e);
+  }
     return typeConverter.fromProtoToUser(userGrpc);
   }
 
   @Override
   public User friendshipAction(Friendship friendship) {
-    UserOuterClass.User userGrpc = userServiceBlockingStub.identityFriendship(
+    UserOuterClass.User userGrpc;
+    try {
+    userGrpc = userServiceBlockingStub.identityFriendship(
         FriendshipAbout.newBuilder()
             .setRequesterUsername(friendship.requesterUsername())
             .setAddresseeId(friendship.addressee().toString())
             .setFriendshipAction(FriendshipAction.valueOf(friendship.action().name()))
-            .build()
-    );
+            .build());
+    } catch (StatusRuntimeException e) {
+      LOG.error(CALLING_GRPC_ERROR_TEXT, e);
+      throw new RuntimeException(e);
+    }
     return typeConverter.fromProtoToUser(userGrpc);
   }
 
   private PageableObjects<User> getPagebleUsers(UsersRequest<UsersPageableResponse> request) {
-    UsersPageableResponse usersPageableResponse = request.send();
+    UsersPageableResponse usersPageableResponse;
+    try {
+      usersPageableResponse = request.send();
+    } catch (StatusRuntimeException e) {
+      LOG.error(CALLING_GRPC_ERROR_TEXT, e);
+      throw new RuntimeException(e);
+    }
     return new PageableUsers(
         typeConverter.fromProtoToListUsers(usersPageableResponse.getUsersList()),
         usersPageableResponse.getHasNext());

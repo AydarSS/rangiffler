@@ -43,7 +43,7 @@ spring:
 grpc:
   client:
     GLOBAL:
-      max-inbound-message-size: 9999999
+      max-inbound-message-size: 9999999999
     grpcGeoClient:
       address: 'static://localhost:8086'
       negotiationType: PLAINTEXT

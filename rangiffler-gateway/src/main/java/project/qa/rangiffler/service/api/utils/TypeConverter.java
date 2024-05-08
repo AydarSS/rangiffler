@@ -66,7 +66,7 @@ public class TypeConverter {
   public Photo fromFrpc(PhotoResponse response) {
     return new Photo(
         UUID.fromString(response.getId()),
-        response.getSrc().toString(),
+        response.getSrc(),
         Country.withOnlyCode(response.getCountryCode()),
         response.getDescription(),
         convertToLocalDate(response.getCreatedDate()),

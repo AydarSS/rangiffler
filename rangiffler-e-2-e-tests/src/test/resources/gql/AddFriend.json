@@ -1,0 +1,10 @@
+{
+  "operationName": "FriendshipAction",
+  "variables": {
+    "input": {
+      "user": "006e5907-4512-475f-97a6-e5c7b438d394",
+      "action": "ADD"
+    }
+  },
+  "query": "mutation FriendshipAction($input: FriendshipInput!) {\n  friendship(input: $input) {\n    id\n    username\n    friendStatus\n    __typename\n  }\n}"
+}

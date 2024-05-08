@@ -1,0 +1,14 @@
+{
+  "operationName": "UpdateUser",
+  "variables": {
+    "input": {
+      "firstname": "",
+      "surname": "surname",
+      "avatar": "",
+      "location": {
+        "code": ""
+      }
+    }
+  },
+  "query": "mutation UpdateUser($input: UserInput!) {\n  user(input: $input) {\n    id\n    username\n    firstname\n    surname\n    avatar\n    location {\n      code\n      name\n      __typename\n    }\n    __typename\n  }\n}"
+}

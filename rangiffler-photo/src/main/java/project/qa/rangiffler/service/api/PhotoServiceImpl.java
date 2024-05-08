@@ -9,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import project.qa.rangiffler.data.LikeEntity;
 import project.qa.rangiffler.data.PhotoEntity;
 import project.qa.rangiffler.data.repository.LikeRepository;
 import project.qa.rangiffler.data.repository.PhotoRepository;
+import project.qa.rangiffler.ex.ResourceNotFoundException;
 
 @Component
 public class PhotoServiceImpl implements PhotoService {
@@ -28,6 +30,7 @@ public class PhotoServiceImpl implements PhotoService {
   }
 
   @Override
+  @Transactional
   public PhotoEntity addPhoto(String username, String src, String countryCode, String description) {
     PhotoEntity photoEntity = new PhotoEntity();
     photoEntity.setUsername(username);
@@ -39,6 +42,7 @@ public class PhotoServiceImpl implements PhotoService {
   }
 
   @Override
+  @Transactional
   public PhotoEntity changePhoto(String id, String countryCode, String description) {
     PhotoEntity forChange = findById(id);
     forChange.setCountryCode(countryCode);
@@ -48,6 +52,7 @@ public class PhotoServiceImpl implements PhotoService {
   }
 
   @Override
+  @Transactional
   public boolean deletePhoto(String id) {
     PhotoEntity forDelete = findById(id);
     List<LikeEntity> likes = findLikes(id);
@@ -59,16 +64,19 @@ public class PhotoServiceImpl implements PhotoService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Slice<PhotoEntity> findPhotosByUsers(List<String> usernames, Pageable pageable) {
     return photoRepository.findByUsernameIn(usernames, pageable);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<PhotoEntity> findPhotosByUsers(List<String> usernames) {
     return photoRepository.findByUsernameIn(usernames);
   }
 
   @Override
+  @Transactional
   public void changeLike(String username, String userId, String photoId) {
     UUID userUid = UUID.fromString(userId);
     UUID photoUid = UUID.fromString(photoId);
@@ -91,20 +99,24 @@ public class PhotoServiceImpl implements PhotoService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public PhotoEntity findById(String id) {
-    return photoRepository.findById(UUID.fromString(id)).orElseThrow();
+    return photoRepository.findById(UUID.fromString(id))
+        .orElseThrow(() -> new ResourceNotFoundException(
+            String.format("Photo by id %s not found", id)));
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<LikeEntity> findLikes(String photoId) {
     UUID photoUid = UUID.fromString(photoId);
     return likeRepository.findByPhotoId(photoUid).orElse(Collections.emptyList());
   }
 
   @Override
+  @Transactional(readOnly = true)
   public String findCountryCode(String photoId) {
-    UUID photoUid = UUID.fromString(photoId);
-    PhotoEntity photo = photoRepository.findById(photoUid).orElseThrow();
+    PhotoEntity photo = findById(photoId);
     return photo.getCountryCode();
   }
 

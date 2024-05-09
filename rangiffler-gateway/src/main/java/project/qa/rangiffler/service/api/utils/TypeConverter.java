@@ -41,7 +41,7 @@ public class TypeConverter {
         protoUser.getUsername(),
         protoUser.getFirstname(),
         protoUser.getSurname(),
-        protoUser.getAvatar().toString(),
+        protoUser.getAvatar(),
         protoUser.getFriendStatus().equals(FriendsStatus.NOT_FRIEND) ||
             protoUser.getFriendStatus().equals(FriendsStatus.UNSPECIFIED)
             ?

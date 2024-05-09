@@ -16,4 +16,6 @@ public class GqlLike {
   protected String username;
   @JsonProperty("creationDate")
   protected LocalDate creationDate;
+  @JsonProperty("__typename")
+  protected String typename;
 }

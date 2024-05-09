@@ -1,5 +1,6 @@
 package project.qa.rangiffler.test.grphql;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,10 +18,12 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import project.qa.rangiffler.annotation.AddedPhotos;
 import project.qa.rangiffler.annotation.ApiLogin;
 import project.qa.rangiffler.annotation.GqlRequestFile;
+import project.qa.rangiffler.annotation.LikeInfo;
 import project.qa.rangiffler.annotation.People;
 import project.qa.rangiffler.annotation.TestUser;
 import project.qa.rangiffler.annotation.Token;
 import project.qa.rangiffler.annotation.UserParam;
+import project.qa.rangiffler.annotation.WithLike;
 import project.qa.rangiffler.annotation.WithPartners;
 import project.qa.rangiffler.db.DataSourceProvider;
 import project.qa.rangiffler.db.Database;
@@ -29,6 +32,7 @@ import project.qa.rangiffler.model.User;
 import project.qa.rangiffler.model.gql.GqlDeletePhoto;
 import project.qa.rangiffler.model.gql.GqlError;
 import project.qa.rangiffler.model.gql.GqlFeed;
+import project.qa.rangiffler.model.gql.GqlLike;
 import project.qa.rangiffler.model.gql.GqlPhoto;
 import project.qa.rangiffler.model.gql.GqlRequest;
 
@@ -46,7 +50,7 @@ public class GqlPhotoTest extends BaseGraphQLTest {
   @ApiLogin(
       user = @TestUser(generateRandom = true)
   )
-  void addPhotoShouldBeSuccessTest(@UserParam User testUser,
+  void addPhotoShouldBeSuccessTest(
       @Token String bearerToken,
       @GqlRequestFile("gql/CreatePhoto.json") GqlRequest request) throws Exception {
 
@@ -118,15 +122,57 @@ public class GqlPhotoTest extends BaseGraphQLTest {
   void getFeedShouldBeSuccessTest(
       @UserParam User testUser,
       @Token String bearerToken,
-      @GqlRequestFile("gql/GetFeed.json") GqlRequest request) throws Exception {
+      @GqlRequestFile("gql/GetFeedWithOwnPhoto.json") GqlRequest request) throws Exception {
 
     final GqlFeed response = gatewayGqlApiClient.getFeed(bearerToken, request);
     assertAll(
-        ()-> assertEquals(1, response.getData().getFeed().getPhotos().getEdges().size(), "Количество фото"),
-        ()-> assertEquals(1, response.getData().getFeed().getStat().get(0).getCount(), "Статистика по стране")
+        () -> assertEquals(1, response.getData().getFeed().getPhotos().getEdges().size(),
+            "Количество фото"),
+        () -> assertEquals(1, response.getData().getFeed().getStat().get(0).getCount(),
+            "Статистика по стране")
     );
   }
-  
+
+  @DisplayName("Получение своих и фото друзей с лайками")
+  @Test()
+  @ApiLogin(
+      user = @TestUser(generateRandom = true,
+          photos = {@AddedPhotos(filename = "images/turkey.png")},
+          partners = {
+              @WithPartners(status = FriendStatus.FRIEND,
+                  photos = {@AddedPhotos(filename = "images/egypt.png",
+                      likes = @WithLike
+                          (likeInfo = @LikeInfo
+                              (withLikeAuthorizedUser = true,
+                                  withLCreatedPhotoUser = true)))
+                  })
+          }
+      ))
+  void getFeedWithFriendsShouldBeSuccessTest(
+      @UserParam User testUser,
+      @Token String bearerToken,
+      @GqlRequestFile("gql/GetFeedWithFriendsPhoto.json") GqlRequest request,
+      @People Map<User, FriendStatus> people) throws Exception {
+    fillPeopleLists(people);
+
+    final GqlFeed response = gatewayGqlApiClient.getFeed(bearerToken, request);
+
+    List<GqlLike> likes = response.getData().getFeed().getPhotos().getEdges().stream().flatMap(
+        gqlPhotoEdge -> gqlPhotoEdge.getUserNode().getLikes().getLikes().stream()).toList();
+
+    assertAll("Проверим фото, статистику и лайки",
+        () -> assertEquals(2, likes.size(), "Всего лайков"),
+        () -> assertThat(likes)
+            .describedAs("Прверим, что лайки поставлены авторизованным юзером и другом")
+            .extracting(GqlLike::getUser)
+            .contains(testUser.id(), friends.get(0).id()),
+        () -> assertEquals(2, response.getData().getFeed().getPhotos().getEdges().size(),
+            "Количество фото"),
+        () -> assertEquals(2, response.getData().getFeed().getStat().get(0).getCount(),
+            "Статистика по стране")
+    );
+  }
+
   private void fillPeopleLists(Map<User, FriendStatus> people) {
     for (Entry<User, FriendStatus> person : people.entrySet()) {
       switch (person.getValue()) {

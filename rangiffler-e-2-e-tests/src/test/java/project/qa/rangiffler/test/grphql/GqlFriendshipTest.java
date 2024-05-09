@@ -38,7 +38,7 @@ public class GqlFriendshipTest extends BaseGraphQLTest {
       @Token String bearerToken,
       @People Map<User, FriendStatus> people) throws Exception {
     fillPeopleLists(people);
-    executeTest(testUser,
+    sendRequestAndAssert(testUser,
         bearerToken,
         notFriend.get(0).id().toString(),
         FriendshipAction.ADD);
@@ -55,7 +55,7 @@ public class GqlFriendshipTest extends BaseGraphQLTest {
       @Token String bearerToken,
       @People Map<User, FriendStatus> people) throws Exception {
     fillPeopleLists(people);
-    executeTest(testUser,
+    sendRequestAndAssert(testUser,
         bearerToken,
         invitationsReceived.get(0).id().toString(),
         FriendshipAction.ACCEPT);
@@ -72,14 +72,14 @@ public class GqlFriendshipTest extends BaseGraphQLTest {
       @Token String bearerToken,
       @People Map<User, FriendStatus> people) throws Exception {
     fillPeopleLists(people);
-    executeTest(testUser,
+    sendRequestAndAssert(testUser,
         bearerToken,
         invitationsReceived.get(0).id().toString(),
         FriendshipAction.REJECT);
   }
 
 
-  private void executeTest(
+  private void sendRequestAndAssert(
       User testUser,
       String bearerToken,
       String userID,

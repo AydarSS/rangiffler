@@ -7,8 +7,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class GqlResponse<T extends GqlResponse> {
-  protected T data;
+public abstract class GqlErrorResponse<T extends GqlErrorResponse> {
+  protected List<GqlError> errors;
   @JsonProperty("__typename")
   protected String typename;
 }

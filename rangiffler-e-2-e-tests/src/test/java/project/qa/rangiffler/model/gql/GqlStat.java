@@ -1,14 +1,19 @@
 package project.qa.rangiffler.model.gql;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import project.qa.rangiffler.model.Country;
 
 @Getter
 @Setter
-public abstract class GqlResponse<T extends GqlResponse> {
-  protected T data;
+public class GqlStat {
+
+  @JsonProperty("count")
+  int count;
+  @JsonProperty("country")
+  GqlCountry country;
   @JsonProperty("__typename")
   protected String typename;
+
 }

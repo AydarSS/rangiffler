@@ -2,13 +2,15 @@ package project.qa.rangiffler.model.gql;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import project.qa.rangiffler.model.Like;
 
-@Getter
-@Setter
-public abstract class GqlResponse<T extends GqlResponse> {
-  protected T data;
+public class GqlLikes {
+
+  @JsonProperty("total")
+  protected int total;
+  @JsonProperty("likes")
+  protected List<Like> likes;
   @JsonProperty("__typename")
   protected String typename;
+
 }

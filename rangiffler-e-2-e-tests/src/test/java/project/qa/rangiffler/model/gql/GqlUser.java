@@ -1,6 +1,5 @@
 package project.qa.rangiffler.model.gql;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.UUID;
 import lombok.Getter;

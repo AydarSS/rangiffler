@@ -24,4 +24,15 @@ public record GqlRequest(String operationName,
             }
             """);
   }
+
+  public static GqlRequest deletePhotoGqlRequest(String photoId) {
+    return new GqlRequest(
+        "DeletePhoto",
+        Map.of("id", photoId),
+        """
+            mutation DeletePhoto($id: ID!) {
+              deletePhoto(id: $id)
+             }
+            """);
+  }
 }

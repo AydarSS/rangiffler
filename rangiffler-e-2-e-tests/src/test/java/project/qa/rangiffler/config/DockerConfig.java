@@ -1,6 +1,7 @@
 package project.qa.rangiffler.config;
 
 import com.codeborne.selenide.Configuration;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 public class DockerConfig implements Config{
 
@@ -10,62 +11,64 @@ public class DockerConfig implements Config{
   }
 
   static {
-    Configuration.remote = "http://localhost:4444/wd/hub";
+    Configuration.remote = "http://selenoid:4444/wd/hub";
     Configuration.browser = "chrome";
+    Configuration.browserVersion = "117.0";
+    Configuration.browserCapabilities = new ChromeOptions().addArguments("--no-sandbox");
+    Configuration.browserSize = "1980x1024";
   }
 
   @Override
   public String frontUrl() {
-    return null;
+    return "http://frontend.rangiffler.dc";
   }
 
   @Override
   public String authUrl() {
-    return null;
+    return "http://auth.rangiffler.dc:9000";
   }
 
   @Override
   public String gatewayUrl() {
-    return null;
+    return "http://gateway.rangiffler.dc:8080";
   }
 
   @Override
   public String jdbcHost() {
-    return null;
+    return "rangiffler-all-db";
   }
 
   @Override
-  public String geoUrl() {
-    return null;
+  public String geoUrl() {return "http://geo.rangiffler.dc:8085";
   }
 
   @Override
   public String userUrl() {
-    return null;
+    return "http://userdata.rangiffler.dc:8089";
   }
 
   @Override
   public String photoUrl() {
-    return null;
+    return "http://photo.rangiffler.dc:8095";
   }
 
   @Override
   public String kafkaAddress() {
-    return null;
+    return "kafka:9092";
   }
 
   @Override
   public String userGrpcHost() {
-    return null;
+    return "http://userdata.rangiffler.dc:8090";
   }
 
   @Override
   public String geoGrpcHost() {
-    return null;
+    return "http://geo.rangiffler.dc:8086";
   }
 
   @Override
   public String photoGrpcHost() {
-    return null;
+    return "http://spend.niffler.dc:8099";
   }
 }

@@ -87,6 +87,11 @@ services:
     image: ${PREFIX}/rangiffler-gateway-${PROFILE}:latest
     ports:
       - "8082:8082"
+    healthcheck:
+      test: "wget --spider http://localhost:8082/actuator/health || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 10
     depends_on:
       auth.rangiffler.dc:
         condition: service_healthy

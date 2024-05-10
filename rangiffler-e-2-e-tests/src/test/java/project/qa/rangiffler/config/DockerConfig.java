@@ -30,7 +30,7 @@ public class DockerConfig implements Config{
 
   @Override
   public String gatewayUrl() {
-    return "http://gateway.rangiffler.dc:8080";
+    return "http://gateway.rangiffler.dc:8082";
   }
 
   @Override

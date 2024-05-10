@@ -54,11 +54,10 @@ public abstract class AddUsersExtension implements BeforeEachCallback, Parameter
         AnnotationSupport.findAnnotation(extensionContext.getRequiredTestMethod(), TestUser.class)
             .orElse(null);
     TestUser userInApiLogin =
-        Objects.requireNonNull(
             AnnotationSupport.findAnnotation(extensionContext.getRequiredTestMethod(),
                     ApiLogin.class)
                 .map(ApiLogin::user)
-                .orElse(null));
+                .orElse(null);
 
     if (Objects.isNull(testUserOuter) && Objects.isNull(userInApiLogin)) {
       return;

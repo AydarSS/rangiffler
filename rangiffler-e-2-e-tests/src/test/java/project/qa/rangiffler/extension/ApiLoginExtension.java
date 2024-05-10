@@ -92,7 +92,7 @@ public class ApiLoginExtension implements BeforeEachCallback, AfterTestExecution
   }
 
   @SuppressWarnings("unchecked")
-  private static User getCreatedUserForApiLogin(ExtensionContext extensionContext) {
+  private User getCreatedUserForApiLogin(ExtensionContext extensionContext) {
     return extensionContext
         .getStore(AddUsersExtension.ADD_USERS_NAMESPACE)
         .get(extensionContext.getUniqueId(), User.class);

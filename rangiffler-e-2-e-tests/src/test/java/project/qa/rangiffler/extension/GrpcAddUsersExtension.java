@@ -9,6 +9,7 @@ import guru.qa.grpc.rangiffler.UserOuterClass.FriendshipAction;
 import guru.qa.grpc.rangiffler.UserOuterClass.UserByUsernameRequest;
 import guru.qa.grpc.rangiffler.UserOuterClass.UserByUsernameResponse;
 import io.grpc.StatusRuntimeException;
+import io.qameta.allure.Step;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -34,6 +35,7 @@ public class GrpcAddUsersExtension extends AddUsersExtension {
   private final GrpcUserClient userClient = new GrpcUserClient();
 
   @Override
+  @Step("Создаем пользователя")
   protected User createUser(User user) {
     authApiClient.doRegister(user.username(), user.testData().password());
     awaitWhileUserSavedInUserdata(user.username());
@@ -60,11 +62,13 @@ public class GrpcAddUsersExtension extends AddUsersExtension {
   }
 
   @Override
+  @Step("Добавляем фото пользователю {username}")
   protected Photo addPhoto(String src, String username, String countryCode, String description) {
     return photoClient.addPhoto(src, countryCode, description, username);
   }
 
   @Override
+  @Step("Добавляем лайки от пользователя {username} к фото {photoId}")
   protected void addLike(String username, String userId, String photoId) {
     photoClient.changeLike(username,
         UUID.fromString(userId),
@@ -72,6 +76,7 @@ public class GrpcAddUsersExtension extends AddUsersExtension {
   }
 
   @Override
+  @Step("Сохраняем связанное лицо для пользователя {currentUsername}")
   protected User savePartner(User partner,
       String currentUsername,
       String currentUserId) {
@@ -88,6 +93,7 @@ public class GrpcAddUsersExtension extends AddUsersExtension {
     return readyUser;
   }
 
+  @Step("Обновляем пользователя")
   private User updateUser(User user) {
     User updates;
     if(Objects.nonNull(user.country()) && !user.country().code().equals("")){
@@ -99,6 +105,7 @@ public class GrpcAddUsersExtension extends AddUsersExtension {
     return updates;
   }
 
+  @Step("Направляем заявку в друзья от пользователя {currentUsername}")
   private void sendInvitation(String currentUsername, String anotherUserId) {
     UserServiceStub.stub.identityFriendship(
         FriendshipAbout.newBuilder()
@@ -109,6 +116,7 @@ public class GrpcAddUsersExtension extends AddUsersExtension {
     );
   }
 
+  @Step("Создаем дружбу между пользователями")
   private void createFriendship(String currentUsername, String currentUserId, User user) {
     UserServiceStub.stub.identityFriendship(
         FriendshipAbout.newBuilder()
@@ -125,6 +133,7 @@ public class GrpcAddUsersExtension extends AddUsersExtension {
             .build());
   }
 
+  @Step("Ожидаем появление пользователя {username} в сервисе userdata")
   private void awaitWhileUserSavedInUserdata(String username) {
     await()
         .atMost(30, TimeUnit.SECONDS)
@@ -142,6 +151,7 @@ public class GrpcAddUsersExtension extends AddUsersExtension {
         });
   }
 
+  @Step("Получаем пользователя {username} из сервиса userdata")
   private UserOuterClass.User getUserByUsername(String username) {
     UserByUsernameResponse response = UserServiceStub.stub.getUserByUsername(
         UserByUsernameRequest.newBuilder()

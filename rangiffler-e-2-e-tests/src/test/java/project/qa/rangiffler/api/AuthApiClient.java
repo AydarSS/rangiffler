@@ -1,6 +1,7 @@
 package project.qa.rangiffler.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.qameta.allure.Step;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -22,6 +23,7 @@ public class AuthApiClient extends RestClient {
     authApi = retrofit.create(AuthApi.class);
   }
 
+  @Step("Логинимся пользователем {username}")
   public void doLogin(ExtensionContext context, String username, String password) throws Exception {
     authApi.authorize(
         "code",
@@ -32,12 +34,12 @@ public class AuthApiClient extends RestClient {
         "S256"
     ).execute();
 
-    authApi.login(
-        username,
-        password,
-        ApiLoginExtension.getCsrfToken()
-    ).execute();
+    login(username, password);
+    token(context);
+  }
 
+  @Step("Запрос на получение токена и кладем в extension")
+  private void token(ExtensionContext context) throws IOException {
     JsonNode responseBody = authApi.token(
         "Basic " + new String(Base64.getEncoder().encode("client:secret".getBytes(StandardCharsets.UTF_8))),
         "client",
@@ -51,7 +53,16 @@ public class AuthApiClient extends RestClient {
     ApiLoginExtension.setToken(context, token);
   }
 
+  @Step("Направляем запрос Login {username}")
+  private void login(String username, String password) throws IOException {
+    authApi.login(
+        username,
+        password,
+        ApiLoginExtension.getCsrfToken()
+    ).execute();
+  }
 
+  @Step("Направляем api запрос на регистрацию пользователя {username}")
   public void doRegister(String username, String password) {
     try {
       authApi.getRegister().execute();

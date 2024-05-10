@@ -2,17 +2,16 @@ package project.qa.rangiffler.test.web;
 
 import com.codeborne.selenide.Selenide;
 import com.github.javafaker.Faker;
+import io.qameta.allure.junit5.AllureJunit5;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import project.qa.rangiffler.annotation.ApiLogin;
-import project.qa.rangiffler.annotation.TestUser;
-import project.qa.rangiffler.annotation.UserParam;
-import project.qa.rangiffler.api.AuthApi;
+import org.junit.jupiter.api.extension.ExtendWith;
 import project.qa.rangiffler.api.AuthApiClient;
-import project.qa.rangiffler.model.User;
+import project.qa.rangiffler.extension.BrowserExtension;
 import project.qa.rangiffler.page.MyTravelsPage;
 import project.qa.rangiffler.page.WelcomePage;
 
+@ExtendWith({AllureJunit5.class, BrowserExtension.class})
 public class LoginTest {
 
   AuthApiClient authApi = new AuthApiClient();

@@ -1,0 +1,4 @@
+CREATE DATABASE IF NOT EXISTS rangiffler_auth;
+CREATE DATABASE IF NOT EXISTS rangiffler_geo;
+CREATE DATABASE IF NOT EXISTS rangiffler_photo;
+CREATE DATABASE IF NOT EXISTS rangiffler_userdata;

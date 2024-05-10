@@ -50,7 +50,7 @@ public class PhotoServiceGrpcTest {
 
   @DisplayName("Добавление фото")
   @Test
-  void addPhotoTest(@PhotoFileConverter("usa.png") String src) {
+  void addPhotoTest(@PhotoFileConverter("images/usa.png") String src) {
     AddPhotoRequest request = AddPhotoRequest.newBuilder()
         .setUsername("duck")
         .setCountryCode("ru")
@@ -65,7 +65,7 @@ public class PhotoServiceGrpcTest {
   @DisplayName("Изменение фото")
   @Test
   @WithManyPhoto({
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "rabbit",
           countryCode = "ru",
           description = "Old Description",
@@ -92,7 +92,7 @@ public class PhotoServiceGrpcTest {
   @Test
   @WithManyPhoto({
       @WithPhoto(
-          filename = "usa.png",
+          filename = "images/usa.png",
           username = "rabbit",
           countryCode = "ru",
           description = "Old Description",
@@ -110,11 +110,11 @@ public class PhotoServiceGrpcTest {
   @DisplayName("Получение фото по одному юзеру")
   @Test
   @WithManyPhoto({
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "rabbit",
           countryCode = "us",
           description = "rabbit Description"),
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "duck",
           countryCode = "ru",
           description = "duck Description",
@@ -145,16 +145,16 @@ public class PhotoServiceGrpcTest {
   @DisplayName("Получение фото по нескольким юзерам")
   @Test
   @WithManyPhoto({
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "bee",
           countryCode = "us",
           description = "rabbit Description",
           enterInMethod = true),
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "rabbit",
           countryCode = "us",
           description = "rabbit Description"),
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "duck",
           countryCode = "ru",
           description = "duck Description")
@@ -188,7 +188,7 @@ public class PhotoServiceGrpcTest {
   @DisplayName("Получение юзера по фото Id")
   @Test
   @WithManyPhoto({
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "bee",
           countryCode = "us",
           description = "rabbit Description",
@@ -208,7 +208,7 @@ public class PhotoServiceGrpcTest {
   @DisplayName("Получение лайков")
   @Test
   @WithManyPhoto({
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "bee",
           countryCode = "us",
           description = "rabbit Description",
@@ -231,7 +231,7 @@ public class PhotoServiceGrpcTest {
   @DisplayName("Удаление ранее поставленного лайка")
   @Test
   @WithManyPhoto({
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "bee",
           countryCode = "us",
           description = "rabbit Description",
@@ -263,16 +263,16 @@ public class PhotoServiceGrpcTest {
   @DisplayName("Получение статистики")
   @Test
   @WithManyPhoto({
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "bee",
           countryCode = "TestForStatistic",
           description = "rabbit Description",
           enterInMethod = true),
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "rabbit",
           countryCode = "TestForStatistic",
           description = "rabbit Description"),
-      @WithPhoto(filename = "usa.png",
+      @WithPhoto(filename = "images/usa.png",
           username = "duck",
           countryCode = "TestForStatistic",
           description = "duck Description")

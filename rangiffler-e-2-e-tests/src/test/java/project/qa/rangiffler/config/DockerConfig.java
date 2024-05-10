@@ -59,16 +59,16 @@ public class DockerConfig implements Config{
 
   @Override
   public String userGrpcHost() {
-    return "http://userdata.rangiffler.dc:8090";
+    return "userdata.rangiffler.dc";
   }
 
   @Override
   public String geoGrpcHost() {
-    return "http://geo.rangiffler.dc:8086";
+    return "geo.rangiffler.dc";
   }
 
   @Override
   public String photoGrpcHost() {
-    return "http://spend.niffler.dc:8099";
+    return "photo.rangiffler.dc";
   }
 }

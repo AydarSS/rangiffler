@@ -44,6 +44,16 @@
 - **rangiffler-e-2-e-tests** - проект с интеграционными тестами
 - **rangiffler-grpc-common** - проект с proto файлами и сгенерированными протокопмилятором классами
 
+Порты, необходимые для работы приложения:   
+```posh
+rangiffler-gql-client: 3001   
+rangiffler-auth: server port: 9000   
+rangiffler-gateway: server port: 8082   
+rangiffler-userdata: server port: 8089 grpc-server port: 8090   
+rangiffler-geo: server port: 8085 grpc-server port: 8086   
+rangiffler-photo: server port: 8095 grpc-server port: 8096   
+```
+
 Ниже приведена диаграмма сервисов, важно, сервисы не общаются между собой, все взаимодействие происходит через аггрегатор в gateway.
 
 <img src="диаграмма сервисов.png" width="800">
@@ -150,9 +160,8 @@ ___
 
 **Запуск java приложений**
 
-После того, как фронтенд и docker контейнеры запущены, можно запускать java приложения одним из 2 способов:
+После того, как фронтенд и docker контейнеры запущены, можно запускать java приложения:
 
-**1.**
 - Необходимо прописать run конфигурацию для всех сервисов rangiffler-* - Active profiles local. Для этого зайти в меню Run -> Edit Configurations -> выбрать main класс -> указать Active profiles: local
 [Инструкция](https://stackoverflow.com/questions/39738901/how-do-i-activate-a-spring-boot-profile-when-running-from-intellij).
 - Запустить сервис Rangiffler-auth c помощью gradle (ниже) или командой Run в IDE (просто перейдя к main-классу приложения RangifflerAuthApplication выбрать run в IDEA (предварительно удостовериться что
@@ -165,11 +174,8 @@ rangiffler-auth % gradle bootRun --args='--spring.profiles.active=local'
 
 - Запустить в любой последовательности другие сервисы: rangiffler-geo, rangiffler-photo, rangiffler-gateway, rangiffler-userdata
 
-**2.**
-Запустить скрипт в корне проекта, который делает тоже самое
-```posh
-rangiffler % bash run_apps.sh
-```
+---
+**Все готово! Можно переходить по адресу http://localhost:3001/ и пользоваться сервисом**
 
 # Запуск Rangiffler в докере:
 

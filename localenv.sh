@@ -11,6 +11,11 @@ docker pull mysql:8.0.33
 docker pull confluentinc/cp-zookeeper:7.3.2
 docker pull confluentinc/cp-kafka:7.3.2
 
+echo '### Create volume ###'
+if ! docker volume inspect mysqldata &> /dev/null; then
+    docker volume create mysqldata
+fi
+
 echo '### Docker run containers ###'
 docker run --name rangiffler-all -p 3306:3306 -e MYSQL_ROOT_PASSWORD=secret -v mysqldata:/var/lib/mysql -d mysql:8.0.33
 docker run --name=zookeeper -e ZOOKEEPER_CLIENT_PORT=2181 -e ZOOKEEPER_TICK_TIME=2000 -p 2181:2181 -d confluentinc/cp-zookeeper:7.3.2
@@ -30,10 +35,13 @@ docker exec -i rangiffler-all mysql -uroot -psecret -e "CREATE DATABASE IF NOT E
 docker exec -i rangiffler-all mysql -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rangiffler_photo;"
 docker exec -i rangiffler-all mysql -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rangiffler_userdata;"
 
-
 echo '### Run frontend ###'
 cd rangiffler-gql-client
 npm i
 npm run dev
+
+
+
+
 
 

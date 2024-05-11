@@ -1,4 +1,4 @@
-package project.qa.rangiffler.service.ex;
+package project.qa.rangiffler.ex;
 
 public class ForbiddedToChangeResource extends RuntimeException{
 

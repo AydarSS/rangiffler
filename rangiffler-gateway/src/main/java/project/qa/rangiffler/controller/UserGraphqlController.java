@@ -1,8 +1,10 @@
 package project.qa.rangiffler.controller;
 
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.SelectedField;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -16,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import project.qa.rangiffler.ex.ToManySubQueriesException;
 import project.qa.rangiffler.model.mutation.FriendshipInput;
 import project.qa.rangiffler.model.mutation.UserInput;
 import project.qa.rangiffler.model.query.Country;
@@ -38,7 +41,9 @@ public class UserGraphqlController {
   public Slice<User> friends(User user,
       @Argument int page,
       @Argument int size,
-      @Argument @Nullable String searchQuery) {
+      @Argument @Nullable String searchQuery,
+      @Nonnull DataFetchingEnvironment env) {
+    checkSubQueries(env, 2, "friends", "incomeInvitations", "outcomeInvitations");
     PageableObjects<User> pageableUsers = userAggregatorService.friends(user.username(), page, size,
         searchQuery);
     return createSlice(page, size, pageableUsers);
@@ -48,7 +53,9 @@ public class UserGraphqlController {
   public Slice<User> incomeInvitations(User user,
       @Argument int page,
       @Argument int size,
-      @Argument @Nullable String searchQuery) {
+      @Argument @Nullable String searchQuery,
+      @Nonnull DataFetchingEnvironment env) {
+    checkSubQueries(env, 2, "friends", "incomeInvitations", "outcomeInvitations");
     PageableObjects<User> pageableUsers = userAggregatorService.incomeInvitations(user.username(), page,
         size,
         searchQuery);
@@ -64,7 +71,9 @@ public class UserGraphqlController {
   public Slice<User> outcomeInvitations(User user,
       @Argument int page,
       @Argument int size,
-      @Argument @Nullable String searchQuery) {
+      @Argument @Nullable String searchQuery,
+      @Nonnull DataFetchingEnvironment env) {
+    checkSubQueries(env, 2, "friends", "incomeInvitations", "outcomeInvitations");
     PageableObjects<User> pageableUsers = userAggregatorService.outcomeInvitations(user.username(), page,
         size,
         searchQuery);
@@ -75,7 +84,9 @@ public class UserGraphqlController {
   public Slice<User> users(@AuthenticationPrincipal Jwt principal,
       @Argument int page,
       @Argument int size,
-      @Argument @Nullable String searchQuery) {
+      @Argument @Nullable String searchQuery,
+      @Nonnull DataFetchingEnvironment env) {
+    checkSubQueries(env, 2, "friends", "incomeInvitations", "outcomeInvitations");
     String username = principal.getClaim("sub");
     PageableObjects<User> pageableUsers = userAggregatorService.allUsers(username, page, size,
         searchQuery);
@@ -110,4 +121,12 @@ public class UserGraphqlController {
             pageableObjects.isHasNext());
   }
 
+  private void checkSubQueries(@Nonnull DataFetchingEnvironment env, int depth, @Nonnull String... queryKeys) {
+    for (String queryKey : queryKeys) {
+      List<SelectedField> selectors = env.getSelectionSet().getFieldsGroupedByResultKey().get(queryKey);
+      if (selectors != null && selectors.size() > depth) {
+        throw new ToManySubQueriesException("Can`t fetch over 2 " + queryKey + " sub-queries");
+      }
+    }
+  }
 }

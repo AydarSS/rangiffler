@@ -1,6 +1,7 @@
 package project.qa.rangiffler.controller;
 
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.SelectedField;
 import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import project.qa.rangiffler.ex.ToManySubQueriesException;
 import project.qa.rangiffler.model.mutation.PhotoInput;
 import project.qa.rangiffler.model.query.Country;
 import project.qa.rangiffler.model.query.Feed;
@@ -60,6 +62,7 @@ public class PhotoGraphqlController {
   @QueryMapping
   public Feed feed(@AuthenticationPrincipal Jwt principal,
       @Argument boolean withFriends, @Nonnull DataFetchingEnvironment env) {
+    checkSubQueries(env, 2, "photos");
     String username = principal.getClaim("sub");
     return new Feed(username, withFriends,
         new ArrayList<>(),
@@ -86,4 +89,12 @@ public class PhotoGraphqlController {
     return photoService.deletePhoto(username, id);
   }
 
+  private void checkSubQueries(@Nonnull DataFetchingEnvironment env, int depth, @Nonnull String... queryKeys) {
+    for (String queryKey : queryKeys) {
+      List<SelectedField> selectors = env.getSelectionSet().getFieldsGroupedByResultKey().get(queryKey);
+      if (selectors != null && selectors.size() > depth) {
+        throw new ToManySubQueriesException("Can`t fetch over 2 " + queryKey + " sub-queries");
+      }
+    }
+  }
 }

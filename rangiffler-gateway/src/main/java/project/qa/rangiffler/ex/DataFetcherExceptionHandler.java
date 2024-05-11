@@ -1,4 +1,4 @@
-package project.qa.rangiffler.service.ex;
+package project.qa.rangiffler.ex;
 
 import graphql.ErrorType;
 import graphql.GraphQLError;

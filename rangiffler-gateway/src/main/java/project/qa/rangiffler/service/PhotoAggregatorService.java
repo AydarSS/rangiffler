@@ -22,7 +22,7 @@ import project.qa.rangiffler.model.query.User;
 import project.qa.rangiffler.service.api.GeoClient;
 import project.qa.rangiffler.service.api.PhotoClient;
 import project.qa.rangiffler.service.api.UserClient;
-import project.qa.rangiffler.service.ex.ForbiddedToChangeResource;
+import project.qa.rangiffler.ex.ForbiddedToChangeResource;
 
 @Service
 public class PhotoAggregatorService {

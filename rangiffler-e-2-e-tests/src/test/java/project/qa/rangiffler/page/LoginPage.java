@@ -18,42 +18,42 @@ public class LoginPage extends BasePage<LoginPage>{
   private final SelenideElement invalidCredentials = $(".form__error");
 
 
-  @Step("Fill login page with credentials: username: {0}, password: {1}")
+  @Step("Заполним учетные данные: username: {0}, password: {1}")
   public LoginPage  fillLoginPage(String login, String password) {
     setUsername(login);
     setPassword(password);
     return this;
   }
 
-  @Step("Invalid Credentials text should be visible")
+  @Step("Неверные учетные данные пользователя должно быть сообщение об ошибке")
   public void invalidCredentialsTextShouldBeVisible(){
     invalidCredentials.shouldBe(exactText("Неверные учетные данные пользователя"));
   }
 
-  @Step("Set username: {0}")
+  @Step("Вводим username: {0}")
   public LoginPage setUsername(String username) {
     usernameInput.setValue(username);
     return this;
   }
 
-  @Step("Set password: {0}")
+  @Step("Вводим password: {0}")
   public LoginPage setPassword(String password) {
     passwordInput.setValue(password);
     return this;
   }
 
-  @Step("Submit login")
+  @Step("Кликаем login")
   public LoginPage submit() {
     submitButton.click();
     return this;
   }
 
-  @Step("Click signUp")
+  @Step("Кликаем signUp")
   public void signUp() {
     signUpButton.click();
   }
 
-  @Step("Check that page is loaded")
+  @Step("Проверим, что страница загрузилась")
   @Override
   public LoginPage waitForPageLoaded() {
     usernameInput.should(visible);

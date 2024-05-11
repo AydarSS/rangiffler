@@ -20,7 +20,7 @@ public class MyTravelsPage extends BasePage<MyTravelsPage> {
   private final PhotoContainer photos = new PhotoContainer($("MuiGrid-root.MuiGrid-container.MuiGrid-spacing-xs-3 "));
   private final SelenideElement profileButton = $("a[href*='/profile']");
 
-  @Step("Check that page is loaded")
+  @Step("Проверим что страница загрузилась")
   @Override
   public MyTravelsPage waitForPageLoaded() {
     addPhotoButton.should(visible);
@@ -28,24 +28,24 @@ public class MyTravelsPage extends BasePage<MyTravelsPage> {
     return this;
   }
 
-  @Step("Click add photo")
+  @Step("Кликаем на добавить фото")
   public EditPhoto addPhoto() {
     addPhotoButton.click();
     return new EditPhoto();
   }
 
-  @Step("Click photo with friends button")
+  @Step("Кликаем на кнопку фото с друзьями")
   public MyTravelsPage photosWithFriends() {
     withFriendsButton.click();
     return this;
   }
 
-  @Step("Check count photos on page, must be {count}")
+  @Step("Проверяем количество стран на странице, должно быть {count}")
   public void checkPhotosCount(int count) {
     photos.getAllPhotos().shouldHave(CollectionCondition.size(count));
   }
 
-  @Step("Check count likes on first photo, must be {count}")
+  @Step("Проверяем количество лайков на первом фото {count}")
   public void checkCountLikesOnFirstPhotoShouldBe(int count) {
     photos.getAllPhotos()
         .first()
@@ -53,7 +53,7 @@ public class MyTravelsPage extends BasePage<MyTravelsPage> {
         .shouldHave(text(count + " likes"));
   }
 
-  @Step("Check that icon paint over")
+  @Step("Проверим, что иконка лайка закрашена")
   public void checklikeItemMustBePaintOver() {
     photos.getAllPhotos()
         .first()
@@ -61,13 +61,13 @@ public class MyTravelsPage extends BasePage<MyTravelsPage> {
         .shouldBe(visible);
   }
 
-  @Step("Delete photo")
+  @Step("Удаляем фото")
   public MyTravelsPage deletePhoto() {
     photos.deletePhoto();
     return this;
   }
 
-  @Step("Edit photo")
+  @Step("Редактируем")
   public EditPhoto editPhoto() {
     return photos.editPhoto();
   }

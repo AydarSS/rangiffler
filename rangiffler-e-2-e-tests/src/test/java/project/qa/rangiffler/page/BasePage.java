@@ -21,7 +21,7 @@ public abstract class BasePage<T extends BasePage> {
 
 
   @SuppressWarnings("unchecked")
-  @Step("")
+  @Step("Проверим сообщение")
   public T checkMessage(Msg msg) {
     message.shouldHave(text(msg.getMessage()));
     return (T) this;

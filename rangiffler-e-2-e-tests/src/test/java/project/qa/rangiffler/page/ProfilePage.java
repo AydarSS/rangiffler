@@ -27,7 +27,7 @@ public class ProfilePage extends BasePage<ProfilePage> {
   private final ElementsCollection comboboxElements = $$("ul li");
 
 
-  @Step("Fill profile page with rate: name: {0}, surname: {1}, currency: {2}")
+  @Step("Заполнима порфиль: name: {0}, surname: {1}")
   public ProfilePage fillProfile(String name, String surname) {
     setName(name);
     setSurname(surname);
@@ -35,25 +35,25 @@ public class ProfilePage extends BasePage<ProfilePage> {
     return this;
   }
 
-  @Step("Set name: {0}")
+  @Step("Установим name: {0}")
   public ProfilePage setName(String name) {
     nameInput.setValue(name);
     return this;
   }
 
-  @Step("Set surname: {0}")
+  @Step("Установим surname: {0}")
   public ProfilePage setSurname(String surname) {
     surnameInput.setValue(surname);
     return this;
   }
 
-  @Step("Set name: {0}")
+  @Step("Установим аватар: {0}")
   public ProfilePage setAvatar(String photoInClasspath) {
     avatarInput.uploadFromClasspath(photoInClasspath);
     return this;
   }
 
-  @Step("Add Country: {0}")
+  @Step("Добавим страну: {0}")
   public ProfilePage setCountryCode(String countryCode) {
     countryCombobox.click();
     comboboxElements
@@ -63,37 +63,37 @@ public class ProfilePage extends BasePage<ProfilePage> {
     return this;
   }
 
-  @Step("Check userName: {0}")
+  @Step("Проверим username: {0}")
   public ProfilePage checkUsername(String username) {
     this.userName.should(text(username));
     return this;
   }
 
-  @Step("Check country: {0}")
+  @Step("Проверим country: {0}")
   public ProfilePage checkCountry(String country) {
     this.countryCombobox.should(text(country));
     return this;
   }
 
-  @Step("Check name: {0}")
+  @Step("Проверим name: {0}")
   public ProfilePage checkName(String name) {
     nameInput.shouldHave(value(name));
     return this;
   }
 
-  @Step("Check surname: {0}")
+  @Step("Проверим surname: {0}")
   public ProfilePage checkSurname(String surname) {
     surnameInput.shouldHave(value(surname));
     return this;
   }
 
-  @Step("Save profile")
+  @Step("Сохранить профиль")
   public ProfilePage submitProfile() {
     submitButton.click();
     return this;
   }
 
-  @Step("Check that page is loaded")
+  @Step("Проверяем, что страница загружена")
   @Override
   public ProfilePage waitForPageLoaded() {
     userName.should(visible);

@@ -29,19 +29,19 @@ public class EditPhoto extends BasePage<EditPhoto> {
     saveButton.click();
   }
 
-  @Step("Add photo: {0}")
+  @Step("Добавляем фото: {0}")
   public EditPhoto uploadPhoto(String photoInClasspath) {
     addPhotoInput.uploadFromClasspath(photoInClasspath);
     return this;
   }
 
-  @Step("Add description: {0}")
+  @Step("Добавляем описание: {0}")
   public EditPhoto setDescription(String description) {
     descriptionInput.setValue(description);
     return this;
   }
 
-  @Step("Add Country: {0}")
+  @Step("Добавляем страну: {0}")
   public EditPhoto setCountryCode(String countryCode) {
     countryCombobox.click();
     comboboxElements

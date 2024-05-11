@@ -27,38 +27,38 @@ public class RegisterPage extends BasePage<RegisterPage> {
     return this;
   }
 
-  @Step("Set username: {0}")
+  @Step("Вводим username: {0}")
   public RegisterPage setUsername(String username) {
     usernameInput.setValue(username);
     return this;
   }
 
-  @Step("Set password: {0}")
+  @Step("Вводим password: {0}")
   public RegisterPage setPassword(String password) {
     passwordInput.setValue(password);
     return this;
   }
 
-  @Step("Confirm password: {0}")
+  @Step("Подтверждение password: {0}")
   public RegisterPage setPasswordSubmit(String password) {
     passwordSubmitInput.setValue(password);
     return this;
   }
 
-  @Step("Submit register")
+  @Step("Кликаем по регистрации")
   public LoginPage successSubmit() {
     submitButton.click();
     proceedLoginLink.click();
     return new LoginPage();
   }
 
-  @Step("Submit register")
+  @Step("Ошибка при клике на регистрацию")
   public RegisterPage errorSubmit() {
     submitButton.click();
     return this;
   }
 
-  @Step("Check that page is loaded")
+  @Step("Проверяем, что страница загружена")
   @Override
   public RegisterPage waitForPageLoaded() {
     usernameInput.should(visible);

@@ -13,13 +13,13 @@ public class WelcomePage extends BasePage<WelcomePage> {
   private final SelenideElement loginButton = $(byText("Login"));
   private final SelenideElement registerButton = $(byText("Register"));
 
-  @Step("Redirect to login page")
+  @Step("Redirect на логин")
   public LoginPage login() {
     loginButton.click();
     return new LoginPage();
   }
 
-  @Step("Redirect to register page")
+  @Step("Redirect на регистрацию")
   public RegisterPage register() {
     registerButton.click();
     return new RegisterPage();
